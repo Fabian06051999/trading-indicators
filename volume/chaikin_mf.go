@@ -22,17 +22,17 @@ func NewChaikinMF(period int) *ChaikinMF {
 	}
 }
 
-func (c *ChaikinMF) Calculate(candles []indicators.OHLCV) []float64 {
+func (c *ChaikinMF) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	c.Reset()
 
 	for i, candle := range candles {
-		result[i] = c.Update(candle)
+		result[i] = c.UpdateAll(candle)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (c *ChaikinMF) Update(candle indicators.OHLCV) float64 {
+func (c *ChaikinMF) UpdateAll(candle indicators.OHLCV) []float64 {
 	hl := candle.High - candle.Low
 	mfm := 0.0
 	if hl != 0 {
@@ -47,7 +47,7 @@ func (c *ChaikinMF) Update(candle indicators.OHLCV) float64 {
 		c.count++
 	}
 	if c.count < c.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	sumMFV := 0.0
@@ -58,9 +58,9 @@ func (c *ChaikinMF) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if sumVol == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return sumMFV / sumVol
+	return []float64{sumMFV / sumVol}
 }
 
 func (c *ChaikinMF) Reset() {

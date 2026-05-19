@@ -45,44 +45,44 @@ func NewT3(period int, volumeFactor float64) *T3 {
 	}
 }
 
-func (t *T3) Calculate(candles []indicators.OHLCV) []float64 {
+func (t *T3) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	t.Reset()
 
 	for i, c := range candles {
-		result[i] = t.Update(c)
+		result[i] = t.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (t *T3) Update(candle indicators.OHLCV) float64 {
+func (t *T3) UpdateAll(candle indicators.OHLCV) []float64 {
 	t.count++
-	e1 := t.ema1.Update(candle)
+	e1 := t.ema1.UpdateAll(candle)[0]
 	if e1 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e2 := t.ema2.Update(indicators.OHLCV{Close: e1})
+	e2 := t.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
 	if e2 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e3 := t.ema3.Update(indicators.OHLCV{Close: e2})
+	e3 := t.ema3.UpdateAll(indicators.OHLCV{Close: e2})[0]
 	if e3 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e4 := t.ema4.Update(indicators.OHLCV{Close: e3})
+	e4 := t.ema4.UpdateAll(indicators.OHLCV{Close: e3})[0]
 	if e4 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e5 := t.ema5.Update(indicators.OHLCV{Close: e4})
+	e5 := t.ema5.UpdateAll(indicators.OHLCV{Close: e4})[0]
 	if e5 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e6 := t.ema6.Update(indicators.OHLCV{Close: e5})
+	e6 := t.ema6.UpdateAll(indicators.OHLCV{Close: e5})[0]
 	if e6 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return t.c1*e6 + t.c2*e5 + t.c3*e4 + t.c4*e3
+	return []float64{t.c1*e6 + t.c2*e5 + t.c3*e4 + t.c4*e3}
 }
 
 func (t *T3) Reset() {

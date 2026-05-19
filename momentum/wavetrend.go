@@ -46,13 +46,13 @@ func (w *WaveTrend) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 	hlc3 := (candle.High + candle.Low + candle.Close) / 3.0
 
-	esa := w.ema1.Update(indicators.OHLCV{Close: hlc3})
+	esa := w.ema1.UpdateAll(indicators.OHLCV{Close: hlc3})[0]
 	if esa == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
 
 	d := math.Abs(hlc3 - esa)
-	dd := w.ema2.Update(indicators.OHLCV{Close: d})
+	dd := w.ema2.UpdateAll(indicators.OHLCV{Close: d})[0]
 	if dd == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
@@ -62,7 +62,7 @@ func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 		ci = (hlc3 - esa) / (0.015 * dd)
 	}
 
-	wt1 := w.ema3.Update(indicators.OHLCV{Close: ci})
+	wt1 := w.ema3.UpdateAll(indicators.OHLCV{Close: ci})[0]
 	if wt1 == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}

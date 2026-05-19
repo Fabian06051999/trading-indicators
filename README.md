@@ -30,17 +30,17 @@ func main() {
 
     // --- Batch calculation (all at once) ---
     sma := moving_averages.NewSMA(14)
-    values := sma.Calculate(candles)
-    fmt.Println("SMA values:", values)
+    values := sma.CalculateAll(candles) // returns [][]float64 (one row per output)
+    fmt.Println("SMA values:", values[0])
 
     // --- Incremental (live updates via WebSocket) ---
     rsi := oscillators.NewRSI(14)
     // First load history
-    rsi.Calculate(candles)
+    rsi.CalculateAll(candles)
     // Then update live
     newCandle := indicators.OHLCV{Close: 47.3, High: 48, Low: 46.5, Volume: 800}
-    latestRSI := rsi.Update(newCandle)
-    fmt.Println("Latest RSI:", latestRSI)
+    latestRSI := rsi.UpdateAll(newCandle) // returns []float64 (one value per output)
+    fmt.Println("Latest RSI:", latestRSI[0])
 }
 ```
 
@@ -74,11 +74,27 @@ cfg.Outputs[0].Style = indicators.StyleDashed  // dashed
 cfg.Outputs[0].Levels[0].Value = 80            // adjust overbought level
 ```
 
-## Multi-Output Indicators
+## Unified Interface
 
-Indicators like MACD, Bollinger or Stochastic produce multiple series:
+Every indicator implements the same interface — no type assertions needed:
 
 ```go
+type Indicator interface {
+    CalculateAll(candles []OHLCV) [][]float64  // batch mode
+    UpdateAll(candle OHLCV) []float64           // incremental mode
+    Reset()
+    Config() *IndicatorConfig
+}
+```
+
+Single-output indicators (SMA, RSI, ATR) return one row, multi-output (MACD, Bollinger, Ichimoku) return multiple:
+
+```go
+// Single output — access [0]
+sma := moving_averages.NewSMA(14)
+values := sma.CalculateAll(candles)[0]
+
+// Multi output — each index is a series
 macd := trend.NewMACD(12, 26, 9)
 results := macd.CalculateAll(candles)
 // results[0] = MACD Line

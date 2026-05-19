@@ -22,24 +22,24 @@ func NewATR(period int) *ATR {
 	}
 }
 
-func (a *ATR) Calculate(candles []indicators.OHLCV) []float64 {
+func (a *ATR) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.Update(c)
+		result[i] = a.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (a *ATR) Update(candle indicators.OHLCV) float64 {
+func (a *ATR) UpdateAll(candle indicators.OHLCV) []float64 {
 	a.count++
 
 	if a.count == 1 {
 		a.prevClose = candle.Close
 		tr := candle.High - candle.Low
 		a.sum = tr
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	tr := math.Max(candle.High-candle.Low,
@@ -50,14 +50,14 @@ func (a *ATR) Update(candle indicators.OHLCV) float64 {
 		a.sum += tr
 		if a.count == a.period {
 			a.value = a.sum / float64(a.period)
-			return a.value
+			return []float64{a.value}
 		}
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Wilder's smoothing
 	a.value = (a.value*float64(a.period-1) + tr) / float64(a.period)
-	return a.value
+	return []float64{a.value}
 }
 
 func (a *ATR) Reset() {

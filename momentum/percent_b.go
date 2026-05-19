@@ -17,26 +17,26 @@ func NewPercentB(period int, stdDev float64) *PercentB {
 	}
 }
 
-func (p *PercentB) Calculate(candles []indicators.OHLCV) []float64 {
+func (p *PercentB) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	p.Reset()
 
 	for i, c := range candles {
-		result[i] = p.Update(c)
+		result[i] = p.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (p *PercentB) Update(candle indicators.OHLCV) float64 {
+func (p *PercentB) UpdateAll(candle indicators.OHLCV) []float64 {
 	bands := p.bb.UpdateAll(candle)
 	upper := bands[0]
 	lower := bands[2]
 
 	if upper == 0 || lower == 0 || upper == lower {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return (candle.Close - lower) / (upper - lower)
+	return []float64{(candle.Close - lower) / (upper - lower)}
 }
 
 func (p *PercentB) Reset() {

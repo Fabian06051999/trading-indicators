@@ -25,23 +25,23 @@ func NewDeMarker(period int) *DeMarker {
 	}
 }
 
-func (d *DeMarker) Calculate(candles []indicators.OHLCV) []float64 {
+func (d *DeMarker) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	d.Reset()
 
 	for i, c := range candles {
-		result[i] = d.Update(c)
+		result[i] = d.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (d *DeMarker) Update(candle indicators.OHLCV) float64 {
+func (d *DeMarker) UpdateAll(candle indicators.OHLCV) []float64 {
 	d.count++
 
 	if d.count == 1 {
 		d.prevHigh = candle.High
 		d.prevLow = candle.Low
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	deMax := 0.0
@@ -62,7 +62,7 @@ func (d *DeMarker) Update(candle indicators.OHLCV) float64 {
 	d.index = (d.index + 1) % d.period
 
 	if d.count <= d.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	sumMax := 0.0
@@ -73,9 +73,9 @@ func (d *DeMarker) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if sumMax+sumMin == 0 {
-		return 0.5
+		return []float64{0.5}
 	}
-	return sumMax / (sumMax + sumMin)
+	return []float64{sumMax / (sumMax + sumMin)}
 }
 
 func (d *DeMarker) Reset() {

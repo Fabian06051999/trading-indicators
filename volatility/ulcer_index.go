@@ -22,17 +22,17 @@ func NewUlcerIndex(period int) *UlcerIndex {
 	}
 }
 
-func (u *UlcerIndex) Calculate(candles []indicators.OHLCV) []float64 {
+func (u *UlcerIndex) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	u.Reset()
 
 	for i, c := range candles {
-		result[i] = u.Update(c)
+		result[i] = u.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (u *UlcerIndex) Update(candle indicators.OHLCV) float64 {
+func (u *UlcerIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	u.count++
 
 	if candle.Close > u.maxVal {
@@ -48,14 +48,14 @@ func (u *UlcerIndex) Update(candle indicators.OHLCV) float64 {
 	u.index = (u.index + 1) % u.period
 
 	if u.count < u.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	sum := 0.0
 	for i := 0; i < u.period; i++ {
 		sum += u.buffer[i]
 	}
-	return math.Sqrt(sum / float64(u.period))
+	return []float64{math.Sqrt(sum / float64(u.period))}
 }
 
 func (u *UlcerIndex) Reset() {

@@ -24,24 +24,24 @@ func NewMFI(period int) *MFI {
 	}
 }
 
-func (m *MFI) Calculate(candles []indicators.OHLCV) []float64 {
+func (m *MFI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	m.Reset()
 
 	for i, c := range candles {
-		result[i] = m.Update(c)
+		result[i] = m.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (m *MFI) Update(candle indicators.OHLCV) float64 {
+func (m *MFI) UpdateAll(candle indicators.OHLCV) []float64 {
 	tp := (candle.High + candle.Low + candle.Close) / 3.0
 	mf := tp * candle.Volume
 	m.count++
 
 	if m.count == 1 {
 		m.prevTP = tp
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Classify money flow
@@ -56,7 +56,7 @@ func (m *MFI) Update(candle indicators.OHLCV) float64 {
 	m.index = (m.index + 1) % m.period
 
 	if m.count <= m.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	posMF := 0.0
@@ -67,10 +67,10 @@ func (m *MFI) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if negMF == 0 {
-		return 100
+		return []float64{100}
 	}
 	mfRatio := posMF / negMF
-	return 100 - 100/(1+mfRatio)
+	return []float64{100 - 100/(1+mfRatio)}
 }
 
 func (m *MFI) Reset() {

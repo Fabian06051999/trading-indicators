@@ -24,17 +24,17 @@ func NewParabolicSAR(afStep, afMax float64) *ParabolicSAR {
 	}
 }
 
-func (p *ParabolicSAR) Calculate(candles []indicators.OHLCV) []float64 {
+func (p *ParabolicSAR) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	p.Reset()
 
 	for i, c := range candles {
-		result[i] = p.Update(c)
+		result[i] = p.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (p *ParabolicSAR) Update(candle indicators.OHLCV) float64 {
+func (p *ParabolicSAR) UpdateAll(candle indicators.OHLCV) []float64 {
 	p.count++
 
 	if p.count == 1 {
@@ -44,7 +44,7 @@ func (p *ParabolicSAR) Update(candle indicators.OHLCV) float64 {
 		p.ep = candle.High
 		p.af = p.afStep
 		p.isLong = true
-		return p.sar
+		return []float64{p.sar}
 	}
 
 	if p.count == 2 {
@@ -60,7 +60,7 @@ func (p *ParabolicSAR) Update(candle indicators.OHLCV) float64 {
 		p.af = p.afStep
 		p.prevHigh = candle.High
 		p.prevLow = candle.Low
-		return p.sar
+		return []float64{p.sar}
 	}
 
 	newSAR := p.sar + p.af*(p.ep-p.sar)
@@ -110,7 +110,7 @@ func (p *ParabolicSAR) Update(candle indicators.OHLCV) float64 {
 	p.sar = newSAR
 	p.prevHigh = candle.High
 	p.prevLow = candle.Low
-	return p.sar
+	return []float64{p.sar}
 }
 
 func (p *ParabolicSAR) Reset() {

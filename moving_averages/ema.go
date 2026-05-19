@@ -22,27 +22,27 @@ func NewEMA(period int) *EMA {
 	}
 }
 
-func (e *EMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (e *EMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	e.Reset()
 
 	for i, c := range candles {
-		result[i] = e.Update(c)
+		result[i] = e.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (e *EMA) Update(candle indicators.OHLCV) float64 {
+func (e *EMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	e.count++
 	if e.count <= e.period {
 		e.sum += candle.Close
 		if e.count == e.period {
 			e.value = e.sum / float64(e.period)
 		}
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 	e.value = (candle.Close-e.value)*e.multiplier + e.value
-	return e.value
+	return []float64{e.value}
 }
 
 func (e *EMA) Reset() {

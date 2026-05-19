@@ -26,17 +26,17 @@ func NewZLEMA(period int) *ZLEMA {
 	}
 }
 
-func (z *ZLEMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (z *ZLEMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	z.Reset()
 
 	for i, c := range candles {
-		result[i] = z.Update(c)
+		result[i] = z.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (z *ZLEMA) Update(candle indicators.OHLCV) float64 {
+func (z *ZLEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	z.count++
 
 	// Store current close in buffer
@@ -44,7 +44,7 @@ func (z *ZLEMA) Update(candle indicators.OHLCV) float64 {
 	z.index = (z.index + 1) % (z.lag + 1)
 
 	if z.count <= z.lag {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Get lagged value
@@ -52,7 +52,7 @@ func (z *ZLEMA) Update(candle indicators.OHLCV) float64 {
 	// Zero-lag adjusted price
 	adjustedPrice := 2*candle.Close - laggedValue
 
-	return z.ema.Update(indicators.OHLCV{Close: adjustedPrice})
+	return []float64{z.ema.UpdateAll(indicators.OHLCV{Close: adjustedPrice})[0]}
 }
 
 func (z *ZLEMA) Reset() {

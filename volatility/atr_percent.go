@@ -16,22 +16,22 @@ func NewATRPercent(period int) *ATRPercent {
 	}
 }
 
-func (a *ATRPercent) Calculate(candles []indicators.OHLCV) []float64 {
+func (a *ATRPercent) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.Update(c)
+		result[i] = a.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (a *ATRPercent) Update(candle indicators.OHLCV) float64 {
-	atrVal := a.atr.Update(candle)
+func (a *ATRPercent) UpdateAll(candle indicators.OHLCV) []float64 {
+	atrVal := a.atr.UpdateAll(candle)[0]
 	if atrVal == 0 || candle.Close == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return (atrVal / candle.Close) * 100
+	return []float64{(atrVal / candle.Close) * 100}
 }
 
 func (a *ATRPercent) Reset() {

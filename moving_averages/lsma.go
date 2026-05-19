@@ -21,24 +21,24 @@ func NewLSMA(period int) *LSMA {
 	}
 }
 
-func (l *LSMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (l *LSMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	l.Reset()
 
 	for i, c := range candles {
-		result[i] = l.Update(c)
+		result[i] = l.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (l *LSMA) Update(candle indicators.OHLCV) float64 {
+func (l *LSMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	l.buffer[l.index] = candle.Close
 	l.index = (l.index + 1) % l.period
 	if l.count < l.period {
 		l.count++
 	}
 	if l.count < l.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Linear regression using least squares
@@ -60,13 +60,13 @@ func (l *LSMA) Update(candle indicators.OHLCV) float64 {
 
 	denom := n*sumX2 - sumX*sumX
 	if denom == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	slope := (n*sumXY - sumX*sumY) / denom
 	intercept := (sumY - slope*sumX) / n
 
-	return intercept + slope*n
+	return []float64{intercept + slope*n}
 }
 
 func (l *LSMA) Reset() {

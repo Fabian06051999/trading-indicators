@@ -26,17 +26,17 @@ func NewKAMA(period, fastPeriod, slowPeriod int) *KAMA {
 	}
 }
 
-func (k *KAMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (k *KAMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	k.Reset()
 
 	for i, c := range candles {
-		result[i] = k.Update(c)
+		result[i] = k.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (k *KAMA) Update(candle indicators.OHLCV) float64 {
+func (k *KAMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	k.buffer[k.index] = candle.Close
 	k.count++
 
@@ -44,9 +44,9 @@ func (k *KAMA) Update(candle indicators.OHLCV) float64 {
 		k.index = (k.index + 1) % (k.period + 1)
 		if k.count == k.period {
 			k.value = candle.Close
-			return k.value
+			return []float64{k.value}
 		}
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	oldestIdx := (k.index + 1) % (k.period + 1)
@@ -76,7 +76,7 @@ func (k *KAMA) Update(candle indicators.OHLCV) float64 {
 
 	k.value = k.value + sc*(candle.Close-k.value)
 	k.index = (k.index + 1) % (k.period + 1)
-	return k.value
+	return []float64{k.value}
 }
 
 func (k *KAMA) Reset() {

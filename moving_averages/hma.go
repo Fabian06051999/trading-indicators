@@ -35,28 +35,28 @@ func NewHMA(period int) *HMA {
 	}
 }
 
-func (h *HMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (h *HMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	h.Reset()
 
 	for i, c := range candles {
-		result[i] = h.Update(c)
+		result[i] = h.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (h *HMA) Update(candle indicators.OHLCV) float64 {
+func (h *HMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	h.count++
-	halfVal := h.wmaHalf.Update(candle)
-	fullVal := h.wmaFull.Update(candle)
+	halfVal := h.wmaHalf.UpdateAll(candle)[0]
+	fullVal := h.wmaFull.UpdateAll(candle)[0]
 
 	if halfVal == 0 || fullVal == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	diff := 2*halfVal - fullVal
-	result := h.wmaSqrt.Update(indicators.OHLCV{Close: diff})
-	return result
+	result := h.wmaSqrt.UpdateAll(indicators.OHLCV{Close: diff})[0]
+	return []float64{result}
 }
 
 func (h *HMA) Reset() {

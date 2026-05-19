@@ -26,17 +26,17 @@ func NewChoppinessIndex(period int) *ChoppinessIndex {
 	}
 }
 
-func (ci *ChoppinessIndex) Calculate(candles []indicators.OHLCV) []float64 {
+func (ci *ChoppinessIndex) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	ci.Reset()
 
 	for i, c := range candles {
-		result[i] = ci.Update(c)
+		result[i] = ci.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (ci *ChoppinessIndex) Update(candle indicators.OHLCV) float64 {
+func (ci *ChoppinessIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	ci.count++
 
 	if ci.count == 1 {
@@ -45,7 +45,7 @@ func (ci *ChoppinessIndex) Update(candle indicators.OHLCV) float64 {
 		ci.lows[ci.index] = candle.Low
 		ci.trBuffer[ci.index] = candle.High - candle.Low
 		ci.index = (ci.index + 1) % ci.period
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	tr := math.Max(candle.High-candle.Low,
@@ -58,7 +58,7 @@ func (ci *ChoppinessIndex) Update(candle indicators.OHLCV) float64 {
 	ci.index = (ci.index + 1) % ci.period
 
 	if ci.count < ci.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Sum of TR
@@ -81,10 +81,10 @@ func (ci *ChoppinessIndex) Update(candle indicators.OHLCV) float64 {
 
 	hl := hh - ll
 	if hl == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return 100 * math.Log10(sumTR/hl) / math.Log10(float64(ci.period))
+	return []float64{100 * math.Log10(sumTR/hl) / math.Log10(float64(ci.period))}
 }
 
 func (ci *ChoppinessIndex) Reset() {

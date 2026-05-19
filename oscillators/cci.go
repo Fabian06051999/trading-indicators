@@ -22,17 +22,17 @@ func NewCCI(period int) *CCI {
 	}
 }
 
-func (c *CCI) Calculate(candles []indicators.OHLCV) []float64 {
+func (c *CCI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	c.Reset()
 
 	for i, candle := range candles {
-		result[i] = c.Update(candle)
+		result[i] = c.UpdateAll(candle)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (c *CCI) Update(candle indicators.OHLCV) float64 {
+func (c *CCI) UpdateAll(candle indicators.OHLCV) []float64 {
 	tp := (candle.High + candle.Low + candle.Close) / 3.0
 
 	c.buffer[c.index] = tp
@@ -41,7 +41,7 @@ func (c *CCI) Update(candle indicators.OHLCV) float64 {
 		c.count++
 	}
 	if c.count < c.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// SMA of typical price
@@ -59,9 +59,9 @@ func (c *CCI) Update(candle indicators.OHLCV) float64 {
 	md /= float64(c.period)
 
 	if md == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return (tp - sma) / (0.015 * md)
+	return []float64{(tp - sma) / (0.015 * md)}
 }
 
 func (c *CCI) Reset() {

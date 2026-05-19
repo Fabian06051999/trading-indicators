@@ -86,25 +86,19 @@ type IndicatorConfig struct {
 	Outputs    []OutputConfig
 }
 
-// Indicator is the core interface every indicator must implement.
+// Indicator is the unified interface every indicator must implement.
+// All indicators return [][]float64 (one slice per output series).
+// Single-output indicators return one row, multi-output return multiple.
 type Indicator interface {
-	// Calculate computes all values for the given candle history (batch mode).
-	Calculate(candles []OHLCV) []float64
+	// CalculateAll computes all values for the given candle history (batch mode).
+	CalculateAll(candles []OHLCV) [][]float64
 
-	// Update computes the next value for a single new candle (incremental mode).
-	Update(candle OHLCV) float64
+	// UpdateAll computes the next value(s) for a single new candle (incremental mode).
+	UpdateAll(candle OHLCV) []float64
 
 	// Reset clears internal state for reuse with new data.
 	Reset()
 
 	// Config returns the display configuration with defaults.
-	Config() *IndicatorConfig
-}
-
-// MultiOutputIndicator is for indicators that produce multiple series (e.g. MACD, Bollinger).
-type MultiOutputIndicator interface {
-	CalculateAll(candles []OHLCV) [][]float64
-	UpdateAll(candle OHLCV) []float64
-	Reset()
 	Config() *IndicatorConfig
 }

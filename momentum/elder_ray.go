@@ -33,7 +33,7 @@ func (e *ElderRay) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 }
 
 func (e *ElderRay) UpdateAll(candle indicators.OHLCV) []float64 {
-	emaVal := e.ema.Update(candle)
+	emaVal := e.ema.UpdateAll(candle)[0]
 	if emaVal == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}

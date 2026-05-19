@@ -22,17 +22,17 @@ func NewSMA(period int) *SMA {
 	}
 }
 
-func (s *SMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (s *SMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	s.Reset()
 
 	for i, c := range candles {
-		result[i] = s.Update(c)
+		result[i] = s.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (s *SMA) Update(candle indicators.OHLCV) float64 {
+func (s *SMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	old := s.buffer[s.index]
 	s.buffer[s.index] = candle.Close
 	s.sum += candle.Close - old
@@ -41,9 +41,9 @@ func (s *SMA) Update(candle indicators.OHLCV) float64 {
 		s.count++
 	}
 	if s.count < s.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return s.sum / float64(s.period)
+	return []float64{s.sum / float64(s.period)}
 }
 
 func (s *SMA) Reset() {

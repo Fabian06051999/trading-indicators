@@ -21,24 +21,24 @@ func NewWMA(period int) *WMA {
 	}
 }
 
-func (w *WMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (w *WMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	w.Reset()
 
 	for i, c := range candles {
-		result[i] = w.Update(c)
+		result[i] = w.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (w *WMA) Update(candle indicators.OHLCV) float64 {
+func (w *WMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	w.buffer[w.index] = candle.Close
 	w.index = (w.index + 1) % w.period
 	if w.count < w.period {
 		w.count++
 	}
 	if w.count < w.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	weightSum := 0.0
@@ -49,7 +49,7 @@ func (w *WMA) Update(candle indicators.OHLCV) float64 {
 		weightSum += w.buffer[idx] * weight
 		divisor += weight
 	}
-	return weightSum / divisor
+	return []float64{weightSum / divisor}
 }
 
 func (w *WMA) Reset() {

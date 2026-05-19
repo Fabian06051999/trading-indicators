@@ -33,23 +33,23 @@ func NewCoppockCurve(wmaPeriod, roc1Period, roc2Period int) *CoppockCurve {
 	}
 }
 
-func (c *CoppockCurve) Calculate(candles []indicators.OHLCV) []float64 {
+func (c *CoppockCurve) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	c.Reset()
 
 	for i, candle := range candles {
-		result[i] = c.Update(candle)
+		result[i] = c.UpdateAll(candle)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (c *CoppockCurve) Update(candle indicators.OHLCV) float64 {
+func (c *CoppockCurve) UpdateAll(candle indicators.OHLCV) []float64 {
 	c.buffer[c.index] = candle.Close
 	c.count++
 
 	if c.count <= c.maxPeriod {
 		c.index = (c.index + 1) % (c.maxPeriod + 1)
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// ROC calculations
@@ -68,7 +68,7 @@ func (c *CoppockCurve) Update(candle indicators.OHLCV) float64 {
 	c.index = (c.index + 1) % (c.maxPeriod + 1)
 
 	sum := roc1 + roc2
-	return c.wma.Update(indicators.OHLCV{Close: sum})
+	return []float64{c.wma.UpdateAll(indicators.OHLCV{Close: sum})[0]}
 }
 
 func (c *CoppockCurve) Reset() {

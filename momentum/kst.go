@@ -77,17 +77,17 @@ func (k *KST) UpdateAll(candle indicators.OHLCV) []float64 {
 	k.index = (k.index + 1) % (k.maxPeriod + 1)
 
 	// Smooth each ROC with SMA
-	s1 := k.sma1.Update(indicators.OHLCV{Close: roc1})
-	s2 := k.sma2.Update(indicators.OHLCV{Close: roc2})
-	s3 := k.sma3.Update(indicators.OHLCV{Close: roc3})
-	s4 := k.sma4.Update(indicators.OHLCV{Close: roc4})
+	s1 := k.sma1.UpdateAll(indicators.OHLCV{Close: roc1})[0]
+	s2 := k.sma2.UpdateAll(indicators.OHLCV{Close: roc2})[0]
+	s3 := k.sma3.UpdateAll(indicators.OHLCV{Close: roc3})[0]
+	s4 := k.sma4.UpdateAll(indicators.OHLCV{Close: roc4})[0]
 
 	if s1 == 0 || s2 == 0 || s3 == 0 || s4 == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
 
 	kstVal := s1*1 + s2*2 + s3*3 + s4*4
-	signal := k.signalSMA.Update(indicators.OHLCV{Close: kstVal})
+	signal := k.signalSMA.UpdateAll(indicators.OHLCV{Close: kstVal})[0]
 
 	return []float64{kstVal, signal}
 }

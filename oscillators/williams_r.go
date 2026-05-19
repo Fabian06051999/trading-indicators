@@ -23,17 +23,17 @@ func NewWilliamsR(period int) *WilliamsR {
 	}
 }
 
-func (w *WilliamsR) Calculate(candles []indicators.OHLCV) []float64 {
+func (w *WilliamsR) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	w.Reset()
 
 	for i, c := range candles {
-		result[i] = w.Update(c)
+		result[i] = w.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (w *WilliamsR) Update(candle indicators.OHLCV) float64 {
+func (w *WilliamsR) UpdateAll(candle indicators.OHLCV) []float64 {
 	w.highs[w.index] = candle.High
 	w.lows[w.index] = candle.Low
 	w.index = (w.index + 1) % w.period
@@ -41,7 +41,7 @@ func (w *WilliamsR) Update(candle indicators.OHLCV) float64 {
 		w.count++
 	}
 	if w.count < w.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	hh := w.highs[0]
@@ -56,9 +56,9 @@ func (w *WilliamsR) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if hh-ll == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return ((hh - candle.Close) / (hh - ll)) * -100
+	return []float64{((hh - candle.Close) / (hh - ll)) * -100}
 }
 
 func (w *WilliamsR) Reset() {

@@ -13,24 +13,24 @@ func NewADLine() *ADLine {
 	return &ADLine{}
 }
 
-func (a *ADLine) Calculate(candles []indicators.OHLCV) []float64 {
+func (a *ADLine) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.Update(c)
+		result[i] = a.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (a *ADLine) Update(candle indicators.OHLCV) float64 {
+func (a *ADLine) UpdateAll(candle indicators.OHLCV) []float64 {
 	hl := candle.High - candle.Low
 	if hl == 0 {
-		return a.value
+		return []float64{a.value}
 	}
 	mfm := ((candle.Close - candle.Low) - (candle.High - candle.Close)) / hl
 	a.value += mfm * candle.Volume
-	return a.value
+	return []float64{a.value}
 }
 
 func (a *ADLine) Reset() {

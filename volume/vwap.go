@@ -17,26 +17,26 @@ func NewVWAP() *VWAP {
 	return &VWAP{}
 }
 
-func (v *VWAP) Calculate(candles []indicators.OHLCV) []float64 {
+func (v *VWAP) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	v.Reset()
 
 	for i, c := range candles {
-		result[i] = v.Update(c)
+		result[i] = v.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (v *VWAP) Update(candle indicators.OHLCV) float64 {
+func (v *VWAP) UpdateAll(candle indicators.OHLCV) []float64 {
 	v.count++
 	tp := (candle.High + candle.Low + candle.Close) / 3.0
 	v.cumTPV += tp * candle.Volume
 	v.cumVol += candle.Volume
 
 	if v.cumVol == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return v.cumTPV / v.cumVol
+	return []float64{v.cumTPV / v.cumVol}
 }
 
 func (v *VWAP) Reset() {

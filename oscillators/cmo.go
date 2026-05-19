@@ -24,22 +24,22 @@ func NewCMO(period int) *CMO {
 	}
 }
 
-func (c *CMO) Calculate(candles []indicators.OHLCV) []float64 {
+func (c *CMO) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	c.Reset()
 
 	for i, candle := range candles {
-		result[i] = c.Update(candle)
+		result[i] = c.UpdateAll(candle)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (c *CMO) Update(candle indicators.OHLCV) float64 {
+func (c *CMO) UpdateAll(candle indicators.OHLCV) []float64 {
 	c.count++
 
 	if c.count == 1 {
 		c.prevClose = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	change := candle.Close - c.prevClose
@@ -55,7 +55,7 @@ func (c *CMO) Update(candle indicators.OHLCV) float64 {
 	c.index = (c.index + 1) % c.period
 
 	if c.count <= c.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	sumGains := 0.0
@@ -66,9 +66,9 @@ func (c *CMO) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if sumGains+sumLosses == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return ((sumGains - sumLosses) / (sumGains + sumLosses)) * 100
+	return []float64{((sumGains - sumLosses) / (sumGains + sumLosses)) * 100}
 }
 
 func (c *CMO) Reset() {

@@ -16,23 +16,23 @@ func NewNVI() *NVI {
 	return &NVI{value: 1000}
 }
 
-func (n *NVI) Calculate(candles []indicators.OHLCV) []float64 {
+func (n *NVI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	n.Reset()
 
 	for i, c := range candles {
-		result[i] = n.Update(c)
+		result[i] = n.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (n *NVI) Update(candle indicators.OHLCV) float64 {
+func (n *NVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	n.count++
 
 	if n.count == 1 {
 		n.prevClose = candle.Close
 		n.prevVol = candle.Volume
-		return n.value
+		return []float64{n.value}
 	}
 
 	if candle.Volume < n.prevVol && n.prevClose != 0 {
@@ -42,7 +42,7 @@ func (n *NVI) Update(candle indicators.OHLCV) float64 {
 
 	n.prevClose = candle.Close
 	n.prevVol = candle.Volume
-	return n.value
+	return []float64{n.value}
 }
 
 func (n *NVI) Reset() {
@@ -75,23 +75,23 @@ func NewPVI() *PVI {
 	return &PVI{value: 1000}
 }
 
-func (p *PVI) Calculate(candles []indicators.OHLCV) []float64 {
+func (p *PVI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	p.Reset()
 
 	for i, c := range candles {
-		result[i] = p.Update(c)
+		result[i] = p.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (p *PVI) Update(candle indicators.OHLCV) float64 {
+func (p *PVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	p.count++
 
 	if p.count == 1 {
 		p.prevClose = candle.Close
 		p.prevVol = candle.Volume
-		return p.value
+		return []float64{p.value}
 	}
 
 	if candle.Volume > p.prevVol && p.prevClose != 0 {
@@ -101,7 +101,7 @@ func (p *PVI) Update(candle indicators.OHLCV) float64 {
 
 	p.prevClose = candle.Close
 	p.prevVol = candle.Volume
-	return p.value
+	return []float64{p.value}
 }
 
 func (p *PVI) Reset() {

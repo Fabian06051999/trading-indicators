@@ -22,29 +22,29 @@ func NewDEMA(period int) *DEMA {
 	}
 }
 
-func (d *DEMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (d *DEMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	d.Reset()
 
 	for i, c := range candles {
-		result[i] = d.Update(c)
+		result[i] = d.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (d *DEMA) Update(candle indicators.OHLCV) float64 {
+func (d *DEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	d.count++
-	ema1Val := d.ema1.Update(candle)
+	ema1Val := d.ema1.UpdateAll(candle)[0]
 	if ema1Val == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	ema2Val := d.ema2.Update(indicators.OHLCV{Close: ema1Val})
+	ema2Val := d.ema2.UpdateAll(indicators.OHLCV{Close: ema1Val})[0]
 	if ema2Val == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return 2*ema1Val - ema2Val
+	return []float64{2*ema1Val - ema2Val}
 }
 
 func (d *DEMA) Reset() {

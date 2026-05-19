@@ -21,23 +21,23 @@ func NewROC(period int) *ROC {
 	}
 }
 
-func (r *ROC) Calculate(candles []indicators.OHLCV) []float64 {
+func (r *ROC) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	r.Reset()
 
 	for i, c := range candles {
-		result[i] = r.Update(c)
+		result[i] = r.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (r *ROC) Update(candle indicators.OHLCV) float64 {
+func (r *ROC) UpdateAll(candle indicators.OHLCV) []float64 {
 	r.buffer[r.index] = candle.Close
 	r.count++
 
 	if r.count <= r.period {
 		r.index = (r.index + 1) % (r.period + 1)
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	pastIdx := (r.index + 1) % (r.period + 1)
@@ -45,9 +45,9 @@ func (r *ROC) Update(candle indicators.OHLCV) float64 {
 	r.index = (r.index + 1) % (r.period + 1)
 
 	if pastVal == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return ((candle.Close - pastVal) / pastVal) * 100
+	return []float64{((candle.Close - pastVal) / pastVal) * 100}
 }
 
 func (r *ROC) Reset() {

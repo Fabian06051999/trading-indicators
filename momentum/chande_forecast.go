@@ -21,24 +21,24 @@ func NewChandeForecast(period int) *ChandeForecast {
 	}
 }
 
-func (cf *ChandeForecast) Calculate(candles []indicators.OHLCV) []float64 {
+func (cf *ChandeForecast) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	cf.Reset()
 
 	for i, c := range candles {
-		result[i] = cf.Update(c)
+		result[i] = cf.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (cf *ChandeForecast) Update(candle indicators.OHLCV) float64 {
+func (cf *ChandeForecast) UpdateAll(candle indicators.OHLCV) []float64 {
 	cf.buffer[cf.index] = candle.Close
 	cf.index = (cf.index + 1) % cf.period
 	if cf.count < cf.period {
 		cf.count++
 	}
 	if cf.count < cf.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Linear regression forecast
@@ -60,14 +60,14 @@ func (cf *ChandeForecast) Update(candle indicators.OHLCV) float64 {
 
 	denom := n*sumX2 - sumX*sumX
 	if denom == 0 || candle.Close == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	slope := (n*sumXY - sumX*sumY) / denom
 	intercept := (sumY - slope*sumX) / n
 	forecast := intercept + slope*(n+1)
 
-	return ((candle.Close - forecast) / candle.Close) * 100
+	return []float64{((candle.Close - forecast) / candle.Close) * 100}
 }
 
 func (cf *ChandeForecast) Reset() {

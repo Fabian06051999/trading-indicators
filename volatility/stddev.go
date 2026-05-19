@@ -23,17 +23,17 @@ func NewStdDev(period int) *StdDev {
 	}
 }
 
-func (s *StdDev) Calculate(candles []indicators.OHLCV) []float64 {
+func (s *StdDev) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	s.Reset()
 
 	for i, c := range candles {
-		result[i] = s.Update(c)
+		result[i] = s.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (s *StdDev) Update(candle indicators.OHLCV) float64 {
+func (s *StdDev) UpdateAll(candle indicators.OHLCV) []float64 {
 	old := s.buffer[s.index]
 	s.buffer[s.index] = candle.Close
 	s.sum += candle.Close - old
@@ -42,7 +42,7 @@ func (s *StdDev) Update(candle indicators.OHLCV) float64 {
 		s.count++
 	}
 	if s.count < s.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	mean := s.sum / float64(s.period)
@@ -51,7 +51,7 @@ func (s *StdDev) Update(candle indicators.OHLCV) float64 {
 		diff := s.buffer[i] - mean
 		variance += diff * diff
 	}
-	return math.Sqrt(variance / float64(s.period))
+	return []float64{math.Sqrt(variance / float64(s.period))}
 }
 
 func (s *StdDev) Reset() {

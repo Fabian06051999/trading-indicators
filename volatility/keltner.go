@@ -42,8 +42,8 @@ func (k *KeltnerChannel) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 }
 
 func (k *KeltnerChannel) UpdateAll(candle indicators.OHLCV) []float64 {
-	mid := k.ema.Update(candle)
-	atrVal := k.atr.Update(candle)
+	mid := k.ema.UpdateAll(candle)[0]
+	atrVal := k.atr.UpdateAll(candle)[0]
 
 	if mid == 0 || atrVal == 0 {
 		return []float64{math.NaN(), math.NaN(), math.NaN()}

@@ -37,7 +37,7 @@ func (e *EMAEnvelope) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 }
 
 func (e *EMAEnvelope) UpdateAll(candle indicators.OHLCV) []float64 {
-	mid := e.ema.Update(candle)
+	mid := e.ema.UpdateAll(candle)[0]
 	if mid == 0 {
 		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}

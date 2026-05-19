@@ -22,20 +22,20 @@ func NewAcceleratorOscillator() *AcceleratorOscillator {
 	}
 }
 
-func (ac *AcceleratorOscillator) Calculate(candles []indicators.OHLCV) []float64 {
+func (ac *AcceleratorOscillator) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	ac.Reset()
 
 	for i, c := range candles {
-		result[i] = ac.Update(c)
+		result[i] = ac.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (ac *AcceleratorOscillator) Update(candle indicators.OHLCV) float64 {
-	aoVal := ac.ao.Update(candle)
+func (ac *AcceleratorOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
+	aoVal := ac.ao.UpdateAll(candle)[0]
 	if aoVal == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	ac.aoCount++
@@ -45,11 +45,11 @@ func (ac *AcceleratorOscillator) Update(candle indicators.OHLCV) float64 {
 	ac.aoIndex = (ac.aoIndex + 1) % 5
 
 	if ac.aoCount < 5 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	aoSMA := ac.aoSum / 5.0
-	return aoVal - aoSMA
+	return []float64{aoVal - aoSMA}
 }
 
 func (ac *AcceleratorOscillator) Reset() {

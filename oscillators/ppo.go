@@ -45,15 +45,15 @@ func (p *PPO) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 
 func (p *PPO) UpdateAll(candle indicators.OHLCV) []float64 {
 	p.count++
-	fast := p.fastEMA.Update(candle)
-	slow := p.slowEMA.Update(candle)
+	fast := p.fastEMA.UpdateAll(candle)[0]
+	slow := p.slowEMA.UpdateAll(candle)[0]
 
 	if fast == 0 || slow == 0 {
 		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	ppoVal := ((fast - slow) / slow) * 100
-	signal := p.signalEMA.Update(indicators.OHLCV{Close: ppoVal})
+	signal := p.signalEMA.UpdateAll(indicators.OHLCV{Close: ppoVal})[0]
 
 	if signal == 0 {
 		return []float64{ppoVal, 0, 0}

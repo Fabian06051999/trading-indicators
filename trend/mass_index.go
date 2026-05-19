@@ -27,25 +27,25 @@ func NewMassIndex(emaPeriod, sumPeriod int) *MassIndex {
 	}
 }
 
-func (m *MassIndex) Calculate(candles []indicators.OHLCV) []float64 {
+func (m *MassIndex) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	m.Reset()
 
 	for i, c := range candles {
-		result[i] = m.Update(c)
+		result[i] = m.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (m *MassIndex) Update(candle indicators.OHLCV) float64 {
+func (m *MassIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	hl := candle.High - candle.Low
-	e1 := m.ema1.Update(indicators.OHLCV{Close: hl})
+	e1 := m.ema1.UpdateAll(indicators.OHLCV{Close: hl})[0]
 	if e1 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e2 := m.ema2.Update(indicators.OHLCV{Close: e1})
+	e2 := m.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
 	if e2 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	ratio := 0.0
@@ -58,14 +58,14 @@ func (m *MassIndex) Update(candle indicators.OHLCV) float64 {
 	m.count++
 
 	if m.count < m.sumPeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	sum := 0.0
 	for i := 0; i < m.sumPeriod; i++ {
 		sum += m.ratios[i]
 	}
-	return sum
+	return []float64{sum}
 }
 
 func (m *MassIndex) Reset() {

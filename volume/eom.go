@@ -23,23 +23,23 @@ func NewEaseOfMovement(period int) *EaseOfMovement {
 	}
 }
 
-func (e *EaseOfMovement) Calculate(candles []indicators.OHLCV) []float64 {
+func (e *EaseOfMovement) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	e.Reset()
 
 	for i, c := range candles {
-		result[i] = e.Update(c)
+		result[i] = e.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (e *EaseOfMovement) Update(candle indicators.OHLCV) float64 {
+func (e *EaseOfMovement) UpdateAll(candle indicators.OHLCV) []float64 {
 	e.count++
 
 	if e.count == 1 {
 		e.prevHigh = candle.High
 		e.prevLow = candle.Low
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	dm := ((candle.High + candle.Low) / 2.0) - ((e.prevHigh + e.prevLow) / 2.0)
@@ -63,10 +63,10 @@ func (e *EaseOfMovement) Update(candle indicators.OHLCV) float64 {
 	e.index = (e.index + 1) % e.period
 
 	if e.count <= e.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return e.sum / float64(e.period)
+	return []float64{e.sum / float64(e.period)}
 }
 
 func (e *EaseOfMovement) Reset() {

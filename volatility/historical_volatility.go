@@ -24,22 +24,22 @@ func NewHistoricalVolatility(period int, annualizationFactor float64) *Historica
 	}
 }
 
-func (h *HistoricalVolatility) Calculate(candles []indicators.OHLCV) []float64 {
+func (h *HistoricalVolatility) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	h.Reset()
 
 	for i, c := range candles {
-		result[i] = h.Update(c)
+		result[i] = h.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (h *HistoricalVolatility) Update(candle indicators.OHLCV) float64 {
+func (h *HistoricalVolatility) UpdateAll(candle indicators.OHLCV) []float64 {
 	h.count++
 
 	if h.count == 1 {
 		h.prevClose = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	logReturn := math.Log(candle.Close / h.prevClose)
@@ -49,7 +49,7 @@ func (h *HistoricalVolatility) Update(candle indicators.OHLCV) float64 {
 	h.index = (h.index + 1) % h.period
 
 	if h.count <= h.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Calculate standard deviation of log returns
@@ -66,7 +66,7 @@ func (h *HistoricalVolatility) Update(candle indicators.OHLCV) float64 {
 	}
 	variance /= float64(h.period - 1)
 
-	return math.Sqrt(variance) * math.Sqrt(h.annFactor) * 100
+	return []float64{math.Sqrt(variance) * math.Sqrt(h.annFactor) * 100}
 }
 
 func (h *HistoricalVolatility) Reset() {

@@ -22,25 +22,25 @@ func NewVolumeProfile(period, bins int) *VolumeProfile {
 	}
 }
 
-func (vp *VolumeProfile) Calculate(candles []indicators.OHLCV) []float64 {
+func (vp *VolumeProfile) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	vp.Reset()
 
 	for i, c := range candles {
-		result[i] = vp.Update(c)
+		result[i] = vp.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
 // Update returns the POC (Point of Control) price level.
-func (vp *VolumeProfile) Update(candle indicators.OHLCV) float64 {
+func (vp *VolumeProfile) UpdateAll(candle indicators.OHLCV) []float64 {
 	vp.buffer[vp.index] = candle
 	vp.index = (vp.index + 1) % vp.period
 	if vp.count < vp.period {
 		vp.count++
 	}
 	if vp.count < vp.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Find price range
@@ -56,7 +56,7 @@ func (vp *VolumeProfile) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if high == low {
-		return high
+		return []float64{high}
 	}
 
 	binSize := (high - low) / float64(vp.bins)
@@ -85,7 +85,7 @@ func (vp *VolumeProfile) Update(candle indicators.OHLCV) float64 {
 		}
 	}
 
-	return low + (float64(maxBin)+0.5)*binSize
+	return []float64{low + (float64(maxBin)+0.5)*binSize}
 }
 
 func (vp *VolumeProfile) Reset() {

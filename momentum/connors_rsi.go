@@ -31,21 +31,21 @@ func NewConnorsRSI(rsiPeriod, streakPeriod, rankPeriod int) *ConnorsRSI {
 	}
 }
 
-func (c *ConnorsRSI) Calculate(candles []indicators.OHLCV) []float64 {
+func (c *ConnorsRSI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	c.Reset()
 
 	for i, candle := range candles {
-		result[i] = c.Update(candle)
+		result[i] = c.UpdateAll(candle)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (c *ConnorsRSI) Update(candle indicators.OHLCV) float64 {
+func (c *ConnorsRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	c.count++
 
 	// Standard RSI
-	rsiVal := c.rsi.Update(candle)
+	rsiVal := c.rsi.UpdateAll(candle)[0]
 
 	// Streak calculation
 	if c.count > 1 {
@@ -67,7 +67,7 @@ func (c *ConnorsRSI) Update(candle indicators.OHLCV) float64 {
 	}
 
 	// Streak RSI
-	streakRSIVal := c.streakRSI.Update(indicators.OHLCV{Close: float64(c.streak)})
+	streakRSIVal := c.streakRSI.UpdateAll(indicators.OHLCV{Close: float64(c.streak)})[0]
 
 	// Percentile rank of ROC
 	roc := 0.0
@@ -80,7 +80,7 @@ func (c *ConnorsRSI) Update(candle indicators.OHLCV) float64 {
 	c.rocIndex = (c.rocIndex + 1) % c.rankPeriod
 
 	if c.count < c.rankPeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Count how many past ROC values are below current
@@ -93,10 +93,10 @@ func (c *ConnorsRSI) Update(candle indicators.OHLCV) float64 {
 	percentRank := (float64(below) / float64(c.rankPeriod)) * 100
 
 	if rsiVal == 0 || streakRSIVal == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return (rsiVal + streakRSIVal + percentRank) / 3.0
+	return []float64{(rsiVal + streakRSIVal + percentRank) / 3.0}
 }
 
 func (c *ConnorsRSI) Reset() {

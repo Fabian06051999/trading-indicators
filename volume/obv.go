@@ -15,22 +15,22 @@ func NewOBV() *OBV {
 	return &OBV{}
 }
 
-func (o *OBV) Calculate(candles []indicators.OHLCV) []float64 {
+func (o *OBV) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	o.Reset()
 
 	for i, c := range candles {
-		result[i] = o.Update(c)
+		result[i] = o.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (o *OBV) Update(candle indicators.OHLCV) float64 {
+func (o *OBV) UpdateAll(candle indicators.OHLCV) []float64 {
 	o.count++
 	if o.count == 1 {
 		o.prevClose = candle.Close
 		o.value = candle.Volume
-		return o.value
+		return []float64{o.value}
 	}
 
 	if candle.Close > o.prevClose {
@@ -39,7 +39,7 @@ func (o *OBV) Update(candle indicators.OHLCV) float64 {
 		o.value -= candle.Volume
 	}
 	o.prevClose = candle.Close
-	return o.value
+	return []float64{o.value}
 }
 
 func (o *OBV) Reset() {

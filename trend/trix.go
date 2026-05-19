@@ -25,40 +25,40 @@ func NewTRIX(period int) *TRIX {
 	}
 }
 
-func (t *TRIX) Calculate(candles []indicators.OHLCV) []float64 {
+func (t *TRIX) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	t.Reset()
 
 	for i, c := range candles {
-		result[i] = t.Update(c)
+		result[i] = t.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (t *TRIX) Update(candle indicators.OHLCV) float64 {
+func (t *TRIX) UpdateAll(candle indicators.OHLCV) []float64 {
 	t.count++
-	e1 := t.ema1.Update(candle)
+	e1 := t.ema1.UpdateAll(candle)[0]
 	if e1 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e2 := t.ema2.Update(indicators.OHLCV{Close: e1})
+	e2 := t.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
 	if e2 == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	e3 := t.ema3.Update(indicators.OHLCV{Close: e2})
+	e3 := t.ema3.UpdateAll(indicators.OHLCV{Close: e2})[0]
 	if e3 == 0 {
 		t.prev = e3
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	if t.prev == 0 {
 		t.prev = e3
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	result := ((e3 - t.prev) / t.prev) * 100
 	t.prev = e3
-	return result
+	return []float64{result}
 }
 
 func (t *TRIX) Reset() {

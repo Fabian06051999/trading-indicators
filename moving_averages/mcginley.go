@@ -19,36 +19,36 @@ func NewMcGinleyDynamic(period int) *McGinleyDynamic {
 	}
 }
 
-func (m *McGinleyDynamic) Calculate(candles []indicators.OHLCV) []float64 {
+func (m *McGinleyDynamic) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	m.Reset()
 
 	for i, c := range candles {
-		result[i] = m.Update(c)
+		result[i] = m.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (m *McGinleyDynamic) Update(candle indicators.OHLCV) float64 {
+func (m *McGinleyDynamic) UpdateAll(candle indicators.OHLCV) []float64 {
 	m.count++
 	if m.count == 1 {
 		m.value = candle.Close
-		return m.value
+		return []float64{m.value}
 	}
 
 	if m.value == 0 {
 		m.value = candle.Close
-		return m.value
+		return []float64{m.value}
 	}
 
 	ratio := candle.Close / m.value
 	denom := float64(m.period) * math.Pow(ratio, 4)
 	if denom == 0 {
-		return m.value
+		return []float64{m.value}
 	}
 
 	m.value = m.value + (candle.Close-m.value)/denom
-	return m.value
+	return []float64{m.value}
 }
 
 func (m *McGinleyDynamic) Reset() {

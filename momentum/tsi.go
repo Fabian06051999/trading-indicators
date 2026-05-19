@@ -58,11 +58,11 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	t.prevClose = candle.Close
 
 	// Double-smoothed price change
-	ds1 := t.longEMA1.Update(indicators.OHLCV{Close: pc})
+	ds1 := t.longEMA1.UpdateAll(indicators.OHLCV{Close: pc})[0]
 	if ds1 == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
-	ds := t.shortEMA1.Update(indicators.OHLCV{Close: ds1})
+	ds := t.shortEMA1.UpdateAll(indicators.OHLCV{Close: ds1})[0]
 	if ds == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
@@ -72,11 +72,11 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	if apc < 0 {
 		apc = -apc
 	}
-	ads1 := t.longEMA2.Update(indicators.OHLCV{Close: apc})
+	ads1 := t.longEMA2.UpdateAll(indicators.OHLCV{Close: apc})[0]
 	if ads1 == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
-	ads := t.shortEMA2.Update(indicators.OHLCV{Close: ads1})
+	ads := t.shortEMA2.UpdateAll(indicators.OHLCV{Close: ads1})[0]
 	if ads == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}
@@ -86,7 +86,7 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 		tsiVal = (ds / ads) * 100
 	}
 
-	signal := t.signalEMA.Update(indicators.OHLCV{Close: tsiVal})
+	signal := t.signalEMA.UpdateAll(indicators.OHLCV{Close: tsiVal})[0]
 	return []float64{tsiVal, signal}
 }
 

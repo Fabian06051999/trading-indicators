@@ -45,15 +45,15 @@ func (m *MACD) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 
 func (m *MACD) UpdateAll(candle indicators.OHLCV) []float64 {
 	m.count++
-	fast := m.fastEMA.Update(candle)
-	slow := m.slowEMA.Update(candle)
+	fast := m.fastEMA.UpdateAll(candle)[0]
+	slow := m.slowEMA.UpdateAll(candle)[0]
 
 	if fast == 0 || slow == 0 {
 		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	macdVal := fast - slow
-	signal := m.signalEMA.Update(indicators.OHLCV{Close: macdVal})
+	signal := m.signalEMA.UpdateAll(indicators.OHLCV{Close: macdVal})[0]
 
 	if signal == 0 {
 		return []float64{macdVal, 0, 0}

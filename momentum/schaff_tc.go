@@ -35,22 +35,22 @@ func NewSchaffTrendCycle(macdFast, macdSlow, cyclePeriod int) *SchaffTrendCycle 
 	}
 }
 
-func (s *SchaffTrendCycle) Calculate(candles []indicators.OHLCV) []float64 {
+func (s *SchaffTrendCycle) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	s.Reset()
 
 	for i, c := range candles {
-		result[i] = s.Update(c)
+		result[i] = s.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
-	fast := s.fastEMA.Update(candle)
-	slow := s.slowEMA.Update(candle)
+func (s *SchaffTrendCycle) UpdateAll(candle indicators.OHLCV) []float64 {
+	fast := s.fastEMA.UpdateAll(candle)[0]
+	slow := s.slowEMA.UpdateAll(candle)[0]
 
 	if fast == 0 || slow == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	macdVal := fast - slow
@@ -61,7 +61,7 @@ func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
 	s.macdCount++
 
 	if s.macdCount < s.cyclePeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	ll := s.macdBuf[0]
@@ -89,7 +89,7 @@ func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
 	s.stoch1Count++
 
 	if s.stoch1Count < s.cyclePeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	ll2 := s.stoch1Buf[0]
@@ -109,7 +109,7 @@ func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
 	}
 
 	s.pff = s.pff + 0.5*(stoch2-s.pff)
-	return s.pff
+	return []float64{s.pff}
 }
 
 func (s *SchaffTrendCycle) Reset() {

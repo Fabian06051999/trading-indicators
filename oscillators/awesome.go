@@ -24,17 +24,17 @@ func NewAwesomeOscillator() *AwesomeOscillator {
 	}
 }
 
-func (ao *AwesomeOscillator) Calculate(candles []indicators.OHLCV) []float64 {
+func (ao *AwesomeOscillator) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	ao.Reset()
 
 	for i, c := range candles {
-		result[i] = ao.Update(c)
+		result[i] = ao.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (ao *AwesomeOscillator) Update(candle indicators.OHLCV) float64 {
+func (ao *AwesomeOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 	median := (candle.High + candle.Low) / 2.0
 	ao.count++
 
@@ -51,12 +51,12 @@ func (ao *AwesomeOscillator) Update(candle indicators.OHLCV) float64 {
 	ao.slowIndex = (ao.slowIndex + 1) % 34
 
 	if ao.count < 34 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	fastSMA := ao.fastSum / 5.0
 	slowSMA := ao.slowSum / 34.0
-	return fastSMA - slowSMA
+	return []float64{fastSMA - slowSMA}
 }
 
 func (ao *AwesomeOscillator) Reset() {

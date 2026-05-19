@@ -21,29 +21,29 @@ func NewMomentum(period int) *Momentum {
 	}
 }
 
-func (m *Momentum) Calculate(candles []indicators.OHLCV) []float64 {
+func (m *Momentum) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	m.Reset()
 
 	for i, c := range candles {
-		result[i] = m.Update(c)
+		result[i] = m.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (m *Momentum) Update(candle indicators.OHLCV) float64 {
+func (m *Momentum) UpdateAll(candle indicators.OHLCV) []float64 {
 	m.buffer[m.index] = candle.Close
 	m.count++
 
 	if m.count <= m.period {
 		m.index = (m.index + 1) % (m.period + 1)
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	pastIdx := (m.index + 1) % (m.period + 1)
 	result := candle.Close - m.buffer[pastIdx]
 	m.index = (m.index + 1) % (m.period + 1)
-	return result
+	return []float64{result}
 }
 
 func (m *Momentum) Reset() {

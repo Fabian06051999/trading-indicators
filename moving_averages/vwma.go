@@ -25,17 +25,17 @@ func NewVWMA(period int) *VWMA {
 	}
 }
 
-func (v *VWMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (v *VWMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	v.Reset()
 
 	for i, c := range candles {
-		result[i] = v.Update(c)
+		result[i] = v.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (v *VWMA) Update(candle indicators.OHLCV) float64 {
+func (v *VWMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	oldPV := v.priceBuf[v.index] * v.volBuf[v.index]
 	oldVol := v.volBuf[v.index]
 
@@ -50,12 +50,12 @@ func (v *VWMA) Update(candle indicators.OHLCV) float64 {
 		v.count++
 	}
 	if v.count < v.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 	if v.volSum == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
-	return v.priceVol / v.volSum
+	return []float64{v.priceVol / v.volSum}
 }
 
 func (v *VWMA) Reset() {

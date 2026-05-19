@@ -44,7 +44,7 @@ func (s *StochRSI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 }
 
 func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
-	rsiVal := s.rsi.Update(candle)
+	rsiVal := s.rsi.UpdateAll(candle)[0]
 	if rsiVal == 0 {
 		return []float64{math.NaN(), math.NaN()}
 	}

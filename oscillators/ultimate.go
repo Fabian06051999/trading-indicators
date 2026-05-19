@@ -37,22 +37,22 @@ func NewUltimateOscillator(period1, period2, period3 int) *UltimateOscillator {
 	}
 }
 
-func (u *UltimateOscillator) Calculate(candles []indicators.OHLCV) []float64 {
+func (u *UltimateOscillator) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	u.Reset()
 
 	for i, c := range candles {
-		result[i] = u.Update(c)
+		result[i] = u.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (u *UltimateOscillator) Update(candle indicators.OHLCV) float64 {
+func (u *UltimateOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 	u.count++
 
 	if u.count == 1 {
 		u.prevClose = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Buying Pressure = Close - Min(Low, PrevClose)
@@ -67,7 +67,7 @@ func (u *UltimateOscillator) Update(candle indicators.OHLCV) float64 {
 	u.index = (u.index + 1) % u.maxPeriod
 
 	if u.count <= u.maxPeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// Sum BP and TR for each period
@@ -88,7 +88,7 @@ func (u *UltimateOscillator) Update(candle indicators.OHLCV) float64 {
 		avg3 = sumBP3 / sumTR3
 	}
 
-	return (4*avg1 + 2*avg2 + avg3) / 7.0 * 100
+	return []float64{(4*avg1 + 2*avg2 + avg3) / 7.0 * 100}
 }
 
 func (u *UltimateOscillator) sumRange(period int) (float64, float64) {

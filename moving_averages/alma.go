@@ -46,24 +46,24 @@ func (a *ALMA) computeWeights() {
 	}
 }
 
-func (a *ALMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (a *ALMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.Update(c)
+		result[i] = a.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (a *ALMA) Update(candle indicators.OHLCV) float64 {
+func (a *ALMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	a.buffer[a.index] = candle.Close
 	a.index = (a.index + 1) % a.period
 	if a.count < a.period {
 		a.count++
 	}
 	if a.count < a.period {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	sum := 0.0
@@ -71,7 +71,7 @@ func (a *ALMA) Update(candle indicators.OHLCV) float64 {
 		idx := (a.index + i) % a.period
 		sum += a.buffer[idx] * a.weights[i]
 	}
-	return sum
+	return []float64{sum}
 }
 
 func (a *ALMA) Reset() {

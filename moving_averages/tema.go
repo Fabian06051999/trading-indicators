@@ -24,34 +24,34 @@ func NewTEMA(period int) *TEMA {
 	}
 }
 
-func (t *TEMA) Calculate(candles []indicators.OHLCV) []float64 {
+func (t *TEMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	t.Reset()
 
 	for i, c := range candles {
-		result[i] = t.Update(c)
+		result[i] = t.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (t *TEMA) Update(candle indicators.OHLCV) float64 {
+func (t *TEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	t.count++
-	ema1Val := t.ema1.Update(candle)
+	ema1Val := t.ema1.UpdateAll(candle)[0]
 	if ema1Val == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	ema2Val := t.ema2.Update(indicators.OHLCV{Close: ema1Val})
+	ema2Val := t.ema2.UpdateAll(indicators.OHLCV{Close: ema1Val})[0]
 	if ema2Val == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	ema3Val := t.ema3.Update(indicators.OHLCV{Close: ema2Val})
+	ema3Val := t.ema3.UpdateAll(indicators.OHLCV{Close: ema2Val})[0]
 	if ema3Val == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return 3*ema1Val - 3*ema2Val + ema3Val
+	return []float64{3*ema1Val - 3*ema2Val + ema3Val}
 }
 
 func (t *TEMA) Reset() {

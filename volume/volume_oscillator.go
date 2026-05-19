@@ -23,26 +23,26 @@ func NewVolumeOscillator(fastPeriod, slowPeriod int) *VolumeOscillator {
 	}
 }
 
-func (v *VolumeOscillator) Calculate(candles []indicators.OHLCV) []float64 {
+func (v *VolumeOscillator) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	v.Reset()
 
 	for i, c := range candles {
-		result[i] = v.Update(c)
+		result[i] = v.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (v *VolumeOscillator) Update(candle indicators.OHLCV) float64 {
+func (v *VolumeOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 	volCandle := indicators.OHLCV{Close: candle.Volume}
-	fast := v.fastEMA.Update(volCandle)
-	slow := v.slowEMA.Update(volCandle)
+	fast := v.fastEMA.UpdateAll(volCandle)[0]
+	slow := v.slowEMA.UpdateAll(volCandle)[0]
 
 	if fast == 0 || slow == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return ((fast - slow) / slow) * 100
+	return []float64{((fast - slow) / slow) * 100}
 }
 
 func (v *VolumeOscillator) Reset() {

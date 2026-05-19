@@ -24,24 +24,24 @@ func NewDPO(period int) *DPO {
 	}
 }
 
-func (d *DPO) Calculate(candles []indicators.OHLCV) []float64 {
+func (d *DPO) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	d.Reset()
 
 	for i, c := range candles {
-		result[i] = d.Update(c)
+		result[i] = d.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (d *DPO) Update(candle indicators.OHLCV) float64 {
+func (d *DPO) UpdateAll(candle indicators.OHLCV) []float64 {
 	bufLen := len(d.buffer)
 	d.buffer[d.index] = candle.Close
 	d.count++
 
 	if d.count < d.period+d.shift {
 		d.index = (d.index + 1) % bufLen
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// SMA of current period window
@@ -58,7 +58,7 @@ func (d *DPO) Update(candle indicators.OHLCV) float64 {
 	dpoVal := d.buffer[shiftedIdx] - sma
 
 	d.index = (d.index + 1) % bufLen
-	return dpoVal
+	return []float64{dpoVal}
 }
 
 func (d *DPO) Reset() {

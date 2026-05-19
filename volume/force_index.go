@@ -21,28 +21,28 @@ func NewForceIndex(period int) *ForceIndex {
 	}
 }
 
-func (f *ForceIndex) Calculate(candles []indicators.OHLCV) []float64 {
+func (f *ForceIndex) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	f.Reset()
 
 	for i, c := range candles {
-		result[i] = f.Update(c)
+		result[i] = f.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (f *ForceIndex) Update(candle indicators.OHLCV) float64 {
+func (f *ForceIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	f.count++
 
 	if f.count == 1 {
 		f.prevClose = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	rawForce := (candle.Close - f.prevClose) * candle.Volume
 	f.prevClose = candle.Close
 
-	return f.ema.Update(indicators.OHLCV{Close: rawForce})
+	return []float64{f.ema.UpdateAll(indicators.OHLCV{Close: rawForce})[0]}
 }
 
 func (f *ForceIndex) Reset() {

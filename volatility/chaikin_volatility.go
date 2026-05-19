@@ -25,21 +25,21 @@ func NewChaikinVolatility(emaPeriod, rocPeriod int) *ChaikinVolatility {
 	}
 }
 
-func (cv *ChaikinVolatility) Calculate(candles []indicators.OHLCV) []float64 {
+func (cv *ChaikinVolatility) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	cv.Reset()
 
 	for i, c := range candles {
-		result[i] = cv.Update(c)
+		result[i] = cv.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (cv *ChaikinVolatility) Update(candle indicators.OHLCV) float64 {
+func (cv *ChaikinVolatility) UpdateAll(candle indicators.OHLCV) []float64 {
 	hl := candle.High - candle.Low
-	emaVal := cv.ema.Update(indicators.OHLCV{Close: hl})
+	emaVal := cv.ema.UpdateAll(indicators.OHLCV{Close: hl})[0]
 	if emaVal == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	cv.buffer[cv.index] = emaVal
@@ -47,15 +47,15 @@ func (cv *ChaikinVolatility) Update(candle indicators.OHLCV) float64 {
 	cv.index = (cv.index + 1) % (cv.rocPeriod + 1)
 
 	if cv.count <= cv.rocPeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	pastVal := cv.buffer[cv.index]
 	if pastVal == 0 {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
-	return ((emaVal - pastVal) / pastVal) * 100
+	return []float64{((emaVal - pastVal) / pastVal) * 100}
 }
 
 func (cv *ChaikinVolatility) Reset() {

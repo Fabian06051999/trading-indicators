@@ -23,22 +23,22 @@ func NewRSI(period int) *RSI {
 	}
 }
 
-func (r *RSI) Calculate(candles []indicators.OHLCV) []float64 {
+func (r *RSI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	r.Reset()
 
 	for i, c := range candles {
-		result[i] = r.Update(c)
+		result[i] = r.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (r *RSI) Update(candle indicators.OHLCV) float64 {
+func (r *RSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	r.count++
 
 	if r.count == 1 {
 		r.prevClose = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	change := candle.Close - r.prevClose
@@ -61,22 +61,22 @@ func (r *RSI) Update(candle indicators.OHLCV) float64 {
 			r.avgLoss = r.losses / float64(r.period)
 
 			if r.avgLoss == 0 {
-				return 100
+				return []float64{100}
 			}
 			rs := r.avgGain / r.avgLoss
-			return 100 - 100/(1+rs)
+			return []float64{100 - 100/(1+rs)}
 		}
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	r.avgGain = (r.avgGain*float64(r.period-1) + gain) / float64(r.period)
 	r.avgLoss = (r.avgLoss*float64(r.period-1) + loss) / float64(r.period)
 
 	if r.avgLoss == 0 {
-		return 100
+		return []float64{100}
 	}
 	rs := r.avgGain / r.avgLoss
-	return 100 - 100/(1+rs)
+	return []float64{100 - 100/(1+rs)}
 }
 
 func (r *RSI) Reset() {

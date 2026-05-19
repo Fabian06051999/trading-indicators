@@ -29,23 +29,23 @@ func NewVIDYA(period, cmoPeriod int) *VIDYA {
 	}
 }
 
-func (v *VIDYA) Calculate(candles []indicators.OHLCV) []float64 {
+func (v *VIDYA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	v.Reset()
 
 	for i, c := range candles {
-		result[i] = v.Update(c)
+		result[i] = v.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (v *VIDYA) Update(candle indicators.OHLCV) float64 {
+func (v *VIDYA) UpdateAll(candle indicators.OHLCV) []float64 {
 	v.count++
 
 	if v.count == 1 {
 		v.prevClose = candle.Close
 		v.value = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	change := candle.Close - v.prevClose
@@ -64,7 +64,7 @@ func (v *VIDYA) Update(candle indicators.OHLCV) float64 {
 	v.index = (v.index + 1) % v.cmoPeriod
 
 	if v.count <= v.cmoPeriod {
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	// CMO = (sumGains - sumLosses) / (sumGains + sumLosses)
@@ -81,7 +81,7 @@ func (v *VIDYA) Update(candle indicators.OHLCV) float64 {
 	}
 
 	v.value = v.value + v.sc*cmo*(candle.Close-v.value)
-	return v.value
+	return []float64{v.value}
 }
 
 func (v *VIDYA) Reset() {

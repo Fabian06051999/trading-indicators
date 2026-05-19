@@ -16,22 +16,22 @@ func NewWilliamsAD() *WilliamsAD {
 	return &WilliamsAD{}
 }
 
-func (w *WilliamsAD) Calculate(candles []indicators.OHLCV) []float64 {
+func (w *WilliamsAD) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	result := make([]float64, len(candles))
 	w.Reset()
 
 	for i, c := range candles {
-		result[i] = w.Update(c)
+		result[i] = w.UpdateAll(c)[0]
 	}
-	return result
+	return [][]float64{result}
 }
 
-func (w *WilliamsAD) Update(candle indicators.OHLCV) float64 {
+func (w *WilliamsAD) UpdateAll(candle indicators.OHLCV) []float64 {
 	w.count++
 
 	if w.count == 1 {
 		w.prevClose = candle.Close
-		return math.NaN()
+		return []float64{math.NaN()}
 	}
 
 	ad := 0.0
@@ -43,7 +43,7 @@ func (w *WilliamsAD) Update(candle indicators.OHLCV) float64 {
 
 	w.value += ad
 	w.prevClose = candle.Close
-	return w.value
+	return []float64{w.value}
 }
 
 func (w *WilliamsAD) Reset() {
