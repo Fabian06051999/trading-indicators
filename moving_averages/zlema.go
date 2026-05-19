@@ -40,7 +40,6 @@ func (z *ZLEMA) Update(candle indicators.OHLCV) float64 {
 	z.count++
 
 	// Store current close in buffer
-	lagIdx := z.index
 	z.buffer[z.index] = candle.Close
 	z.index = (z.index + 1) % (z.lag + 1)
 
@@ -52,7 +51,6 @@ func (z *ZLEMA) Update(candle indicators.OHLCV) float64 {
 	laggedValue := z.buffer[z.index]
 	// Zero-lag adjusted price
 	adjustedPrice := 2*candle.Close - laggedValue
-	_ = lagIdx
 
 	return z.ema.Update(indicators.OHLCV{Close: adjustedPrice})
 }

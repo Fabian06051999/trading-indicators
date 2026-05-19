@@ -96,7 +96,6 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 		intercept := (sumY - slope*sumX) / n
 		mom = intercept + slope*n
 	}
-	_ = math.Abs(0) // keep import
 
 	return []float64{mom, sqz}
 }
