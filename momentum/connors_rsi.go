@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/oscillators"
 )
@@ -79,7 +80,7 @@ func (c *ConnorsRSI) Update(candle indicators.OHLCV) float64 {
 	c.rocIndex = (c.rocIndex + 1) % c.rankPeriod
 
 	if c.count < c.rankPeriod {
-		return 0
+		return math.NaN()
 	}
 
 	// Count how many past ROC values are below current
@@ -92,7 +93,7 @@ func (c *ConnorsRSI) Update(candle indicators.OHLCV) float64 {
 	percentRank := (float64(below) / float64(c.rankPeriod)) * 100
 
 	if rsiVal == 0 || streakRSIVal == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	return (rsiVal + streakRSIVal + percentRank) / 3.0

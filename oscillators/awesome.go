@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -50,7 +51,7 @@ func (ao *AwesomeOscillator) Update(candle indicators.OHLCV) float64 {
 	ao.slowIndex = (ao.slowIndex + 1) % 34
 
 	if ao.count < 34 {
-		return 0
+		return math.NaN()
 	}
 
 	fastSMA := ao.fastSum / 5.0

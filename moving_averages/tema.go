@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -36,17 +37,17 @@ func (t *TEMA) Update(candle indicators.OHLCV) float64 {
 	t.count++
 	ema1Val := t.ema1.Update(candle)
 	if ema1Val == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	ema2Val := t.ema2.Update(indicators.OHLCV{Close: ema1Val})
 	if ema2Val == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	ema3Val := t.ema3.Update(indicators.OHLCV{Close: ema2Val})
 	if ema3Val == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	return 3*ema1Val - 3*ema2Val + ema3Val

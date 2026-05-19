@@ -46,7 +46,7 @@ func (k *KAMA) Update(candle indicators.OHLCV) float64 {
 			k.value = candle.Close
 			return k.value
 		}
-		return 0
+		return math.NaN()
 	}
 
 	oldestIdx := (k.index + 1) % (k.period + 1)

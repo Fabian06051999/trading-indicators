@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -36,7 +37,7 @@ func (w *WMA) Update(candle indicators.OHLCV) float64 {
 		w.count++
 	}
 	if w.count < w.period {
-		return 0
+		return math.NaN()
 	}
 
 	weightSum := 0.0

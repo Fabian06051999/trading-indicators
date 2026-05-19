@@ -61,7 +61,7 @@ func (a *ALMA) Update(candle indicators.OHLCV) float64 {
 		a.count++
 	}
 	if a.count < a.period {
-		return 0
+		return math.NaN()
 	}
 
 	sum := 0.0

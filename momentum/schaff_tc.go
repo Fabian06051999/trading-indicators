@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -49,7 +50,7 @@ func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
 	slow := s.slowEMA.Update(candle)
 
 	if fast == 0 || slow == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	macdVal := fast - slow
@@ -60,7 +61,7 @@ func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
 	s.macdCount++
 
 	if s.macdCount < s.cyclePeriod {
-		return 0
+		return math.NaN()
 	}
 
 	ll := s.macdBuf[0]
@@ -88,7 +89,7 @@ func (s *SchaffTrendCycle) Update(candle indicators.OHLCV) float64 {
 	s.stoch1Count++
 
 	if s.stoch1Count < s.cyclePeriod {
-		return 0
+		return math.NaN()
 	}
 
 	ll2 := s.stoch1Buf[0]

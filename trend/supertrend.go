@@ -49,7 +49,7 @@ func (s *Supertrend) UpdateAll(candle indicators.OHLCV) []float64 {
 	if s.count == 1 {
 		s.prevClose = candle.Close
 		s.trSum = candle.High - candle.Low
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// True Range
@@ -62,7 +62,7 @@ func (s *Supertrend) UpdateAll(candle indicators.OHLCV) []float64 {
 		if s.count == s.period {
 			s.atrVal = s.trSum / float64(s.period)
 		}
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Wilder's ATR smoothing

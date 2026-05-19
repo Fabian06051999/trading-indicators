@@ -1,6 +1,7 @@
 package volatility
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -44,7 +45,7 @@ func (d *DonchianChannel) UpdateAll(candle indicators.OHLCV) []float64 {
 		d.count++
 	}
 	if d.count < d.period {
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	hh := d.highs[0]

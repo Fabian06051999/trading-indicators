@@ -41,7 +41,7 @@ func (s *StdDev) Update(candle indicators.OHLCV) float64 {
 		s.count++
 	}
 	if s.count < s.period {
-		return 0
+		return math.NaN()
 	}
 
 	mean := s.sum / float64(s.period)

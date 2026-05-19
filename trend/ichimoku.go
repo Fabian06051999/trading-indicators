@@ -1,6 +1,7 @@
 package trend
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -84,7 +85,7 @@ func (ich *Ichimoku) UpdateAll(candle indicators.OHLCV) []float64 {
 
 func (ich *Ichimoku) midpoint(period int) float64 {
 	if ich.count < period {
-		return 0
+		return math.NaN()
 	}
 
 	maxP := ich.senkouBPeriod

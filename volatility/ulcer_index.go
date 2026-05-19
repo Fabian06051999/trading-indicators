@@ -48,7 +48,7 @@ func (u *UlcerIndex) Update(candle indicators.OHLCV) float64 {
 	u.index = (u.index + 1) % u.period
 
 	if u.count < u.period {
-		return 0
+		return math.NaN()
 	}
 
 	sum := 0.0

@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -50,7 +51,7 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if t.count == 1 {
 		t.prevClose = candle.Close
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	pc := candle.Close - t.prevClose
@@ -59,11 +60,11 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	// Double-smoothed price change
 	ds1 := t.longEMA1.Update(indicators.OHLCV{Close: pc})
 	if ds1 == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 	ds := t.shortEMA1.Update(indicators.OHLCV{Close: ds1})
 	if ds == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Double-smoothed absolute price change
@@ -73,11 +74,11 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 	ads1 := t.longEMA2.Update(indicators.OHLCV{Close: apc})
 	if ads1 == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 	ads := t.shortEMA2.Update(indicators.OHLCV{Close: ads1})
 	if ads == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	tsiVal := 0.0

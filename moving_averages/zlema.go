@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -43,7 +44,7 @@ func (z *ZLEMA) Update(candle indicators.OHLCV) float64 {
 	z.index = (z.index + 1) % (z.lag + 1)
 
 	if z.count <= z.lag {
-		return 0
+		return math.NaN()
 	}
 
 	// Get lagged value

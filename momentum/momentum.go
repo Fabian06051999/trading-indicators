@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -35,7 +36,7 @@ func (m *Momentum) Update(candle indicators.OHLCV) float64 {
 
 	if m.count <= m.period {
 		m.index = (m.index + 1) % (m.period + 1)
-		return 0
+		return math.NaN()
 	}
 
 	pastIdx := (m.index + 1) % (m.period + 1)

@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -36,7 +37,7 @@ func (r *RSI) Update(candle indicators.OHLCV) float64 {
 
 	if r.count == 1 {
 		r.prevClose = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	change := candle.Close - r.prevClose
@@ -64,7 +65,7 @@ func (r *RSI) Update(candle indicators.OHLCV) float64 {
 			rs := r.avgGain / r.avgLoss
 			return 100 - 100/(1+rs)
 		}
-		return 0
+		return math.NaN()
 	}
 
 	r.avgGain = (r.avgGain*float64(r.period-1) + gain) / float64(r.period)

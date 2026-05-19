@@ -1,6 +1,7 @@
 package trend
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -40,11 +41,11 @@ func (m *MassIndex) Update(candle indicators.OHLCV) float64 {
 	hl := candle.High - candle.Low
 	e1 := m.ema1.Update(indicators.OHLCV{Close: hl})
 	if e1 == 0 {
-		return 0
+		return math.NaN()
 	}
 	e2 := m.ema2.Update(indicators.OHLCV{Close: e1})
 	if e2 == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	ratio := 0.0
@@ -57,7 +58,7 @@ func (m *MassIndex) Update(candle indicators.OHLCV) float64 {
 	m.count++
 
 	if m.count < m.sumPeriod {
-		return 0
+		return math.NaN()
 	}
 
 	sum := 0.0

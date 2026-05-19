@@ -1,6 +1,7 @@
 package trend
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -38,7 +39,7 @@ func (e *EMAEnvelope) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (e *EMAEnvelope) UpdateAll(candle indicators.OHLCV) []float64 {
 	mid := e.ema.Update(candle)
 	if mid == 0 {
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	offset := mid * (e.percentage / 100.0)

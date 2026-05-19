@@ -1,6 +1,7 @@
 package volume
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -33,7 +34,7 @@ func (v *VWAP) Update(candle indicators.OHLCV) float64 {
 	v.cumVol += candle.Volume
 
 	if v.cumVol == 0 {
-		return 0
+		return math.NaN()
 	}
 	return v.cumTPV / v.cumVol
 }

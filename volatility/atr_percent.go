@@ -1,6 +1,7 @@
 package volatility
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -28,7 +29,7 @@ func (a *ATRPercent) Calculate(candles []indicators.OHLCV) []float64 {
 func (a *ATRPercent) Update(candle indicators.OHLCV) float64 {
 	atrVal := a.atr.Update(candle)
 	if atrVal == 0 || candle.Close == 0 {
-		return 0
+		return math.NaN()
 	}
 	return (atrVal / candle.Close) * 100
 }

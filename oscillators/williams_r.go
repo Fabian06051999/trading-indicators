@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -39,7 +40,7 @@ func (w *WilliamsR) Update(candle indicators.OHLCV) float64 {
 		w.count++
 	}
 	if w.count < w.period {
-		return 0
+		return math.NaN()
 	}
 
 	hh := w.highs[0]
@@ -54,7 +55,7 @@ func (w *WilliamsR) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if hh-ll == 0 {
-		return 0
+		return math.NaN()
 	}
 	return ((hh - candle.Close) / (hh - ll)) * -100
 }

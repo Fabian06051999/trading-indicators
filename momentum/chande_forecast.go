@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -37,7 +38,7 @@ func (cf *ChandeForecast) Update(candle indicators.OHLCV) float64 {
 		cf.count++
 	}
 	if cf.count < cf.period {
-		return 0
+		return math.NaN()
 	}
 
 	// Linear regression forecast
@@ -59,7 +60,7 @@ func (cf *ChandeForecast) Update(candle indicators.OHLCV) float64 {
 
 	denom := n*sumX2 - sumX*sumX
 	if denom == 0 || candle.Close == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	slope := (n*sumXY - sumX*sumY) / denom

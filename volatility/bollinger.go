@@ -48,7 +48,7 @@ func (b *BollingerBands) UpdateAll(candle indicators.OHLCV) []float64 {
 		b.count++
 	}
 	if b.count < b.period {
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	sma := b.sum / float64(b.period)

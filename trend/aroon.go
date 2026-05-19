@@ -1,6 +1,7 @@
 package trend
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -41,7 +42,7 @@ func (a *Aroon) UpdateAll(candle indicators.OHLCV) []float64 {
 	a.index = (a.index + 1) % (a.period + 1)
 
 	if a.count <= a.period {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Find index of highest high and lowest low

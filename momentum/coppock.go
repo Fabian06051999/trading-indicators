@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -48,7 +49,7 @@ func (c *CoppockCurve) Update(candle indicators.OHLCV) float64 {
 
 	if c.count <= c.maxPeriod {
 		c.index = (c.index + 1) % (c.maxPeriod + 1)
-		return 0
+		return math.NaN()
 	}
 
 	// ROC calculations

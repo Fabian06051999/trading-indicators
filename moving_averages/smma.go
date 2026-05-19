@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -36,7 +37,7 @@ func (s *SMMA) Update(candle indicators.OHLCV) float64 {
 			s.value = s.sum / float64(s.period)
 			return s.value
 		}
-		return 0
+		return math.NaN()
 	}
 	s.value = (s.value*float64(s.period-1) + candle.Close) / float64(s.period)
 	return s.value

@@ -48,7 +48,7 @@ func (v *Vortex) UpdateAll(candle indicators.OHLCV) []float64 {
 		v.prevHigh = candle.High
 		v.prevLow = candle.Low
 		v.prevClose = candle.Close
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	vmP := math.Abs(candle.High - v.prevLow)
@@ -66,7 +66,7 @@ func (v *Vortex) UpdateAll(candle indicators.OHLCV) []float64 {
 	v.index = (v.index + 1) % v.period
 
 	if v.count <= v.period {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	sumVMP := 0.0
@@ -79,7 +79,7 @@ func (v *Vortex) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if sumTR == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	return []float64{sumVMP / sumTR, sumVMM / sumTR}

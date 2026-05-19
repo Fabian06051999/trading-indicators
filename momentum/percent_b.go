@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/volatility"
 )
@@ -32,7 +33,7 @@ func (p *PercentB) Update(candle indicators.OHLCV) float64 {
 	lower := bands[2]
 
 	if upper == 0 || lower == 0 || upper == lower {
-		return 0
+		return math.NaN()
 	}
 
 	return (candle.Close - lower) / (upper - lower)

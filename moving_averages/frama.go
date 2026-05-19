@@ -38,7 +38,7 @@ func (f *FRAMA) Update(candle indicators.OHLCV) float64 {
 	f.count++
 
 	if f.count < f.period {
-		return 0
+		return math.NaN()
 	}
 
 	if f.count == f.period {

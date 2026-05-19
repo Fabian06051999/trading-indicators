@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -35,7 +36,7 @@ func (r *ROC) Update(candle indicators.OHLCV) float64 {
 
 	if r.count <= r.period {
 		r.index = (r.index + 1) % (r.period + 1)
-		return 0
+		return math.NaN()
 	}
 
 	pastIdx := (r.index + 1) % (r.period + 1)
@@ -43,7 +44,7 @@ func (r *ROC) Update(candle indicators.OHLCV) float64 {
 	r.index = (r.index + 1) % (r.period + 1)
 
 	if pastVal == 0 {
-		return 0
+		return math.NaN()
 	}
 	return ((candle.Close - pastVal) / pastVal) * 100
 }

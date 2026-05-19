@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -37,7 +38,7 @@ func (c *CMO) Update(candle indicators.OHLCV) float64 {
 
 	if c.count == 1 {
 		c.prevClose = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	change := candle.Close - c.prevClose
@@ -53,7 +54,7 @@ func (c *CMO) Update(candle indicators.OHLCV) float64 {
 	c.index = (c.index + 1) % c.period
 
 	if c.count <= c.period {
-		return 0
+		return math.NaN()
 	}
 
 	sumGains := 0.0
@@ -64,7 +65,7 @@ func (c *CMO) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if sumGains+sumLosses == 0 {
-		return 0
+		return math.NaN()
 	}
 	return ((sumGains - sumLosses) / (sumGains + sumLosses)) * 100
 }

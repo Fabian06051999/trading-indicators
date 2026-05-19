@@ -1,6 +1,7 @@
 package volume
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -38,7 +39,7 @@ func (v *VolumeOscillator) Update(candle indicators.OHLCV) float64 {
 	slow := v.slowEMA.Update(volCandle)
 
 	if fast == 0 || slow == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	return ((fast - slow) / slow) * 100

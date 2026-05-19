@@ -38,7 +38,7 @@ func (a *ATR) Update(candle indicators.OHLCV) float64 {
 		a.prevClose = candle.Close
 		tr := candle.High - candle.Low
 		a.sum = tr
-		return 0
+		return math.NaN()
 	}
 
 	tr := math.Max(candle.High-candle.Low,
@@ -51,7 +51,7 @@ func (a *ATR) Update(candle indicators.OHLCV) float64 {
 			a.value = a.sum / float64(a.period)
 			return a.value
 		}
-		return 0
+		return math.NaN()
 	}
 
 	// Wilder's smoothing

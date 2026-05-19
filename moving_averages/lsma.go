@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -36,7 +37,7 @@ func (l *LSMA) Update(candle indicators.OHLCV) float64 {
 		l.count++
 	}
 	if l.count < l.period {
-		return 0
+		return math.NaN()
 	}
 
 	// Linear regression using least squares
@@ -58,7 +59,7 @@ func (l *LSMA) Update(candle indicators.OHLCV) float64 {
 
 	denom := n*sumX2 - sumX*sumX
 	if denom == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	slope := (n*sumXY - sumX*sumY) / denom

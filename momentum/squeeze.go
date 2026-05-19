@@ -59,7 +59,7 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.index = (s.index + 1) % s.bbPeriod
 
 	if bbVals[0] == 0 || kcVals[0] == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Squeeze: BB inside KC
@@ -70,7 +70,7 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	// Momentum: linear regression of (close - midline(BB))
 	if s.count < s.bbPeriod {
-		return []float64{0, sqz}
+		return []float64{math.NaN(), sqz}
 	}
 
 	// Simple linear regression value

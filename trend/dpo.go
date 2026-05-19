@@ -1,6 +1,7 @@
 package trend
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -40,7 +41,7 @@ func (d *DPO) Update(candle indicators.OHLCV) float64 {
 
 	if d.count < d.period+d.shift {
 		d.index = (d.index + 1) % bufLen
-		return 0
+		return math.NaN()
 	}
 
 	// SMA of current period window

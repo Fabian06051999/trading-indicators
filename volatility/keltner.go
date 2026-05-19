@@ -47,7 +47,7 @@ func (k *KeltnerChannel) UpdateAll(candle indicators.OHLCV) []float64 {
 	_ = math.Abs(0) // keep import
 
 	if mid == 0 || atrVal == 0 {
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	offset := k.multiplier * atrVal

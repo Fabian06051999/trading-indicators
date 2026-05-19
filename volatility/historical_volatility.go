@@ -39,7 +39,7 @@ func (h *HistoricalVolatility) Update(candle indicators.OHLCV) float64 {
 
 	if h.count == 1 {
 		h.prevClose = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	logReturn := math.Log(candle.Close / h.prevClose)
@@ -49,7 +49,7 @@ func (h *HistoricalVolatility) Update(candle indicators.OHLCV) float64 {
 	h.index = (h.index + 1) % h.period
 
 	if h.count <= h.period {
-		return 0
+		return math.NaN()
 	}
 
 	// Calculate standard deviation of log returns

@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -30,7 +31,7 @@ func (w *WilliamsAD) Update(candle indicators.OHLCV) float64 {
 
 	if w.count == 1 {
 		w.prevClose = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	ad := 0.0

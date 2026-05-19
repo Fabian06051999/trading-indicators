@@ -45,7 +45,7 @@ func (v *VIDYA) Update(candle indicators.OHLCV) float64 {
 	if v.count == 1 {
 		v.prevClose = candle.Close
 		v.value = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	change := candle.Close - v.prevClose
@@ -64,7 +64,7 @@ func (v *VIDYA) Update(candle indicators.OHLCV) float64 {
 	v.index = (v.index + 1) % v.cmoPeriod
 
 	if v.count <= v.cmoPeriod {
-		return 0
+		return math.NaN()
 	}
 
 	// CMO = (sumGains - sumLosses) / (sumGains + sumLosses)

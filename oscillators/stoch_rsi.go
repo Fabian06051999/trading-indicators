@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -45,7 +46,7 @@ func (s *StochRSI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	rsiVal := s.rsi.Update(candle)
 	if rsiVal == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	s.rsiBuffer[s.rsiIndex] = rsiVal
@@ -53,7 +54,7 @@ func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.rsiCount++
 
 	if s.rsiCount < s.stochK {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Find min/max RSI in window

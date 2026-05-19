@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -34,7 +35,7 @@ func (e *ElderRay) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (e *ElderRay) UpdateAll(candle indicators.OHLCV) []float64 {
 	emaVal := e.ema.Update(candle)
 	if emaVal == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	bullPower := candle.High - emaVal

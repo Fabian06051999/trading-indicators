@@ -1,6 +1,7 @@
 package volume
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -38,7 +39,7 @@ func (e *EaseOfMovement) Update(candle indicators.OHLCV) float64 {
 	if e.count == 1 {
 		e.prevHigh = candle.High
 		e.prevLow = candle.Low
-		return 0
+		return math.NaN()
 	}
 
 	dm := ((candle.High + candle.Low) / 2.0) - ((e.prevHigh + e.prevLow) / 2.0)
@@ -62,7 +63,7 @@ func (e *EaseOfMovement) Update(candle indicators.OHLCV) float64 {
 	e.index = (e.index + 1) % e.period
 
 	if e.count <= e.period {
-		return 0
+		return math.NaN()
 	}
 
 	return e.sum / float64(e.period)

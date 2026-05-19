@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -37,7 +38,7 @@ func (e *EMA) Update(candle indicators.OHLCV) float64 {
 		if e.count == e.period {
 			e.value = e.sum / float64(e.period)
 		}
-		return 0
+		return math.NaN()
 	}
 	e.value = (candle.Close-e.value)*e.multiplier + e.value
 	return e.value

@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -39,7 +40,7 @@ func (s *SMA) Update(candle indicators.OHLCV) float64 {
 		s.count++
 	}
 	if s.count < s.period {
-		return 0
+		return math.NaN()
 	}
 	return s.sum / float64(s.period)
 }

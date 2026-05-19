@@ -40,7 +40,7 @@ func (c *CCI) Update(candle indicators.OHLCV) float64 {
 		c.count++
 	}
 	if c.count < c.period {
-		return 0
+		return math.NaN()
 	}
 
 	// SMA of typical price
@@ -58,7 +58,7 @@ func (c *CCI) Update(candle indicators.OHLCV) float64 {
 	md /= float64(c.period)
 
 	if md == 0 {
-		return 0
+		return math.NaN()
 	}
 	return (tp - sma) / (0.015 * md)
 }

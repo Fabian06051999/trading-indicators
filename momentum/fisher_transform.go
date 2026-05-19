@@ -47,7 +47,7 @@ func (f *FisherTransform) UpdateAll(candle indicators.OHLCV) []float64 {
 		f.count++
 	}
 	if f.count < f.period {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Find highest high and lowest low

@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -39,7 +40,7 @@ func (d *DeMarker) Update(candle indicators.OHLCV) float64 {
 	if d.count == 1 {
 		d.prevHigh = candle.High
 		d.prevLow = candle.Low
-		return 0
+		return math.NaN()
 	}
 
 	deMax := 0.0
@@ -60,7 +61,7 @@ func (d *DeMarker) Update(candle indicators.OHLCV) float64 {
 	d.index = (d.index + 1) % d.period
 
 	if d.count <= d.period {
-		return 0
+		return math.NaN()
 	}
 
 	sumMax := 0.0

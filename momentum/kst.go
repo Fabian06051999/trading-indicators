@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -64,7 +65,7 @@ func (k *KST) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if k.count <= k.maxPeriod {
 		k.index = (k.index + 1) % (k.maxPeriod + 1)
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// ROC calculations
@@ -82,7 +83,7 @@ func (k *KST) UpdateAll(candle indicators.OHLCV) []float64 {
 	s4 := k.sma4.Update(indicators.OHLCV{Close: roc4})
 
 	if s1 == 0 || s2 == 0 || s3 == 0 || s4 == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	kstVal := s1*1 + s2*2 + s3*3 + s4*4
@@ -95,7 +96,7 @@ func (k *KST) roc(period int, current float64) float64 {
 	pastIdx := (k.index - period + k.maxPeriod + 1) % (k.maxPeriod + 1)
 	past := k.buffer[pastIdx]
 	if past == 0 {
-		return 0
+		return math.NaN()
 	}
 	return ((current - past) / past) * 100
 }

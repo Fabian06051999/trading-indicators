@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -34,7 +35,7 @@ func (ac *AcceleratorOscillator) Calculate(candles []indicators.OHLCV) []float64
 func (ac *AcceleratorOscillator) Update(candle indicators.OHLCV) float64 {
 	aoVal := ac.ao.Update(candle)
 	if aoVal == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	ac.aoCount++
@@ -44,7 +45,7 @@ func (ac *AcceleratorOscillator) Update(candle indicators.OHLCV) float64 {
 	ac.aoIndex = (ac.aoIndex + 1) % 5
 
 	if ac.aoCount < 5 {
-		return 0
+		return math.NaN()
 	}
 
 	aoSMA := ac.aoSum / 5.0

@@ -1,6 +1,7 @@
 package volume
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -46,7 +47,7 @@ func (c *ChaikinMF) Update(candle indicators.OHLCV) float64 {
 		c.count++
 	}
 	if c.count < c.period {
-		return 0
+		return math.NaN()
 	}
 
 	sumMFV := 0.0
@@ -57,7 +58,7 @@ func (c *ChaikinMF) Update(candle indicators.OHLCV) float64 {
 	}
 
 	if sumVol == 0 {
-		return 0
+		return math.NaN()
 	}
 	return sumMFV / sumVol
 }

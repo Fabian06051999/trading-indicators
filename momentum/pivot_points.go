@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -47,7 +48,7 @@ func (p *PivotPoints) UpdateAll(candle indicators.OHLCV) []float64 {
 		p.prevHigh = candle.High
 		p.prevLow = candle.Low
 		p.prevClose = candle.Close
-		return []float64{0, 0, 0, 0, 0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	// Calculate pivots based on previous candle

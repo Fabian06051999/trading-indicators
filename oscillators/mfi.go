@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -39,7 +40,7 @@ func (m *MFI) Update(candle indicators.OHLCV) float64 {
 
 	if m.count == 1 {
 		m.prevTP = tp
-		return 0
+		return math.NaN()
 	}
 
 	// Classify money flow
@@ -54,7 +55,7 @@ func (m *MFI) Update(candle indicators.OHLCV) float64 {
 	m.index = (m.index + 1) % m.period
 
 	if m.count <= m.period {
-		return 0
+		return math.NaN()
 	}
 
 	posMF := 0.0

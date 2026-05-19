@@ -1,6 +1,7 @@
 package volume
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -35,7 +36,7 @@ func (f *ForceIndex) Update(candle indicators.OHLCV) float64 {
 
 	if f.count == 1 {
 		f.prevClose = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	rawForce := (candle.Close - f.prevClose) * candle.Volume

@@ -1,6 +1,7 @@
 package volatility
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -38,7 +39,7 @@ func (cv *ChaikinVolatility) Update(candle indicators.OHLCV) float64 {
 	hl := candle.High - candle.Low
 	emaVal := cv.ema.Update(indicators.OHLCV{Close: hl})
 	if emaVal == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	cv.buffer[cv.index] = emaVal
@@ -46,12 +47,12 @@ func (cv *ChaikinVolatility) Update(candle indicators.OHLCV) float64 {
 	cv.index = (cv.index + 1) % (cv.rocPeriod + 1)
 
 	if cv.count <= cv.rocPeriod {
-		return 0
+		return math.NaN()
 	}
 
 	pastVal := cv.buffer[cv.index]
 	if pastVal == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	return ((emaVal - pastVal) / pastVal) * 100

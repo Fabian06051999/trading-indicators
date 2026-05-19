@@ -50,7 +50,7 @@ func (h *HMA) Update(candle indicators.OHLCV) float64 {
 	fullVal := h.wmaFull.Update(candle)
 
 	if halfVal == 0 || fullVal == 0 {
-		return 0
+		return math.NaN()
 	}
 
 	diff := 2*halfVal - fullVal

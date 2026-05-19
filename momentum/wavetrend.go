@@ -48,13 +48,13 @@ func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	esa := w.ema1.Update(indicators.OHLCV{Close: hlc3})
 	if esa == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	d := math.Abs(hlc3 - esa)
 	dd := w.ema2.Update(indicators.OHLCV{Close: d})
 	if dd == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	ci := 0.0
@@ -64,7 +64,7 @@ func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	wt1 := w.ema3.Update(indicators.OHLCV{Close: ci})
 	if wt1 == 0 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// WT2 = SMA(WT1, 4)

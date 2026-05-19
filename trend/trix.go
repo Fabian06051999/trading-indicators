@@ -1,6 +1,7 @@
 package trend
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -38,21 +39,21 @@ func (t *TRIX) Update(candle indicators.OHLCV) float64 {
 	t.count++
 	e1 := t.ema1.Update(candle)
 	if e1 == 0 {
-		return 0
+		return math.NaN()
 	}
 	e2 := t.ema2.Update(indicators.OHLCV{Close: e1})
 	if e2 == 0 {
-		return 0
+		return math.NaN()
 	}
 	e3 := t.ema3.Update(indicators.OHLCV{Close: e2})
 	if e3 == 0 {
 		t.prev = e3
-		return 0
+		return math.NaN()
 	}
 
 	if t.prev == 0 {
 		t.prev = e3
-		return 0
+		return math.NaN()
 	}
 
 	result := ((e3 - t.prev) / t.prev) * 100

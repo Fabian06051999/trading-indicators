@@ -52,7 +52,7 @@ func (u *UltimateOscillator) Update(candle indicators.OHLCV) float64 {
 
 	if u.count == 1 {
 		u.prevClose = candle.Close
-		return 0
+		return math.NaN()
 	}
 
 	// Buying Pressure = Close - Min(Low, PrevClose)
@@ -67,7 +67,7 @@ func (u *UltimateOscillator) Update(candle indicators.OHLCV) float64 {
 	u.index = (u.index + 1) % u.maxPeriod
 
 	if u.count <= u.maxPeriod {
-		return 0
+		return math.NaN()
 	}
 
 	// Sum BP and TR for each period

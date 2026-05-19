@@ -1,6 +1,7 @@
 package moving_averages
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -48,10 +49,10 @@ func (v *VWMA) Update(candle indicators.OHLCV) float64 {
 		v.count++
 	}
 	if v.count < v.period {
-		return 0
+		return math.NaN()
 	}
 	if v.volSum == 0 {
-		return 0
+		return math.NaN()
 	}
 	return v.priceVol / v.volSum
 }

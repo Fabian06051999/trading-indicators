@@ -1,6 +1,7 @@
 package volume
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -39,7 +40,7 @@ func (vp *VolumeProfile) Update(candle indicators.OHLCV) float64 {
 		vp.count++
 	}
 	if vp.count < vp.period {
-		return 0
+		return math.NaN()
 	}
 
 	// Find price range

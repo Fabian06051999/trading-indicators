@@ -1,6 +1,7 @@
 package momentum
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 )
 
@@ -58,7 +59,7 @@ func (r *RVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	r.closes[3] = candle.Close
 
 	if r.count < 4 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	// Symmetrically weighted moving average of numerator and denominator
@@ -70,7 +71,7 @@ func (r *RVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	r.denBuf[idx] = den
 
 	if r.count < r.period+3 {
-		return []float64{0, 0}
+		return []float64{math.NaN(), math.NaN()}
 	}
 
 	sumNum := 0.0

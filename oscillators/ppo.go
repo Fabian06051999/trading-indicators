@@ -1,6 +1,7 @@
 package oscillators
 
 import (
+	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
 )
@@ -48,7 +49,7 @@ func (p *PPO) UpdateAll(candle indicators.OHLCV) []float64 {
 	slow := p.slowEMA.Update(candle)
 
 	if fast == 0 || slow == 0 {
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	ppoVal := ((fast - slow) / slow) * 100

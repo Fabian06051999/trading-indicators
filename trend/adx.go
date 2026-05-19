@@ -48,7 +48,7 @@ func (a *ADX) UpdateAll(candle indicators.OHLCV) []float64 {
 		a.prevHigh = candle.High
 		a.prevLow = candle.Low
 		a.prevClose = candle.Close
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	// True Range
@@ -94,7 +94,7 @@ func (a *ADX) UpdateAll(candle indicators.OHLCV) []float64 {
 			a.adxSum = dx
 			return []float64{0, pdi, ndi}
 		}
-		return []float64{0, 0, 0}
+		return []float64{math.NaN(), math.NaN(), math.NaN()}
 	}
 
 	// Smoothed values using Wilder's method

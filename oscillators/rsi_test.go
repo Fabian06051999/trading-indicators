@@ -22,10 +22,10 @@ func TestRSI_WilderReference(t *testing.T) {
 	rsi := NewRSI(14)
 	results := rsi.Calculate(candles)
 
-	// First 14 candles should return 0 (warmup)
+	// First 14 candles should return NaN (warmup)
 	for i := 0; i < 14; i++ {
-		if results[i] != 0 {
-			t.Errorf("Expected 0 during warmup at index %d, got %f", i, results[i])
+		if !math.IsNaN(results[i]) {
+			t.Errorf("Expected NaN during warmup at index %d, got %f", i, results[i])
 		}
 	}
 
@@ -117,7 +117,7 @@ func TestRSI_Reset(t *testing.T) {
 
 	// After reset, should behave like fresh instance
 	result := rsi.Update(candles[0])
-	if result != 0 {
-		t.Errorf("After reset, first Update should return 0, got %f", result)
+	if !math.IsNaN(result) {
+		t.Errorf("After reset, first Update should return NaN, got %f", result)
 	}
 }
