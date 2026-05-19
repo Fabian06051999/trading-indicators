@@ -14,6 +14,7 @@ type ROC struct {
 }
 
 func NewROC(period int) *ROC {
+	period = indicators.ClampMin(period, 1)
 	return &ROC{
 		period: period,
 		buffer: make([]float64, period+1),

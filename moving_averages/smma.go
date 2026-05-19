@@ -14,6 +14,7 @@ type SMMA struct {
 }
 
 func NewSMMA(period int) *SMMA {
+	period = indicators.ClampMin(period, 1)
 	return &SMMA{
 		period: period,
 	}

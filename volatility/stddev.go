@@ -16,6 +16,7 @@ type StdDev struct {
 }
 
 func NewStdDev(period int) *StdDev {
+	period = indicators.ClampMin(period, 2)
 	return &StdDev{
 		period: period,
 		buffer: make([]float64, period),

@@ -1,5 +1,21 @@
 package indicators
 
+// ClampMin ensures a value is at least min.
+func ClampMin(value, min int) int {
+	if value < min {
+		return min
+	}
+	return value
+}
+
+// ClampMinF ensures a float value is at least min.
+func ClampMinF(value, min float64) float64 {
+	if value < min {
+		return min
+	}
+	return value
+}
+
 // OHLCV represents a single candlestick with timestamp.
 type OHLCV struct {
 	Timestamp int64

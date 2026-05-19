@@ -16,6 +16,7 @@ type CMO struct {
 }
 
 func NewCMO(period int) *CMO {
+	period = indicators.ClampMin(period, 2)
 	return &CMO{
 		period: period,
 		gains:  make([]float64, period),

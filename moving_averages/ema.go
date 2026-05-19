@@ -15,6 +15,7 @@ type EMA struct {
 }
 
 func NewEMA(period int) *EMA {
+	period = indicators.ClampMin(period, 1)
 	return &EMA{
 		period:     period,
 		multiplier: 2.0 / float64(period+1),

@@ -14,6 +14,7 @@ type DEMA struct {
 }
 
 func NewDEMA(period int) *DEMA {
+	period = indicators.ClampMin(period, 1)
 	return &DEMA{
 		period: period,
 		ema1:   NewEMA(period),

@@ -17,6 +17,7 @@ type HMA struct {
 }
 
 func NewHMA(period int) *HMA {
+	period = indicators.ClampMin(period, 2)
 	sqrtPeriod := int(math.Sqrt(float64(period)))
 	if sqrtPeriod < 1 {
 		sqrtPeriod = 1

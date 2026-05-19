@@ -14,6 +14,7 @@ type WMA struct {
 }
 
 func NewWMA(period int) *WMA {
+	period = indicators.ClampMin(period, 1)
 	return &WMA{
 		period: period,
 		buffer: make([]float64, period),

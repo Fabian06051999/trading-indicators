@@ -14,6 +14,7 @@ type LSMA struct {
 }
 
 func NewLSMA(period int) *LSMA {
+	period = indicators.ClampMin(period, 2)
 	return &LSMA{
 		period: period,
 		buffer: make([]float64, period),

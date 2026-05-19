@@ -16,6 +16,7 @@ type FRAMA struct {
 }
 
 func NewFRAMA(period int) *FRAMA {
+	period = indicators.ClampMin(period, 4)
 	return &FRAMA{
 		period: period,
 		buffer: make([]float64, period),

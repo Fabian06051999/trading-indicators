@@ -17,6 +17,7 @@ type RSI struct {
 }
 
 func NewRSI(period int) *RSI {
+	period = indicators.ClampMin(period, 2)
 	return &RSI{
 		period: period,
 	}

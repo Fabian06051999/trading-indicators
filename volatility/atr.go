@@ -16,6 +16,7 @@ type ATR struct {
 }
 
 func NewATR(period int) *ATR {
+	period = indicators.ClampMin(period, 1)
 	return &ATR{
 		period: period,
 	}

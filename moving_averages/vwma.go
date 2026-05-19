@@ -17,6 +17,7 @@ type VWMA struct {
 }
 
 func NewVWMA(period int) *VWMA {
+	period = indicators.ClampMin(period, 1)
 	return &VWMA{
 		period:   period,
 		priceBuf: make([]float64, period),

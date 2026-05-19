@@ -21,6 +21,7 @@ type ADX struct {
 }
 
 func NewADX(period int) *ADX {
+	period = indicators.ClampMin(period, 2)
 	return &ADX{
 		period: period,
 	}

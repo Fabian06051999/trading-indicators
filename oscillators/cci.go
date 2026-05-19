@@ -15,6 +15,7 @@ type CCI struct {
 }
 
 func NewCCI(period int) *CCI {
+	period = indicators.ClampMin(period, 2)
 	return &CCI{
 		period: period,
 		buffer: make([]float64, period),

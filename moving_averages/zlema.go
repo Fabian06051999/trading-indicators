@@ -16,6 +16,7 @@ type ZLEMA struct {
 }
 
 func NewZLEMA(period int) *ZLEMA {
+	period = indicators.ClampMin(period, 2)
 	lag := (period - 1) / 2
 	return &ZLEMA{
 		period: period,

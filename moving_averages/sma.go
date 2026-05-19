@@ -15,6 +15,7 @@ type SMA struct {
 }
 
 func NewSMA(period int) *SMA {
+	period = indicators.ClampMin(period, 1)
 	return &SMA{
 		period: period,
 		buffer: make([]float64, period),

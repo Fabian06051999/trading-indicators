@@ -17,6 +17,7 @@ type DeMarker struct {
 }
 
 func NewDeMarker(period int) *DeMarker {
+	period = indicators.ClampMin(period, 2)
 	return &DeMarker{
 		period: period,
 		deMax:  make([]float64, period),

@@ -15,6 +15,7 @@ type WilliamsR struct {
 }
 
 func NewWilliamsR(period int) *WilliamsR {
+	period = indicators.ClampMin(period, 2)
 	return &WilliamsR{
 		period: period,
 		highs:  make([]float64, period),

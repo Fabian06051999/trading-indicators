@@ -18,6 +18,8 @@ type ALMA struct {
 }
 
 func NewALMA(period int, offset, sigma float64) *ALMA {
+	period = indicators.ClampMin(period, 2)
+	sigma = indicators.ClampMinF(sigma, 0.1)
 	a := &ALMA{
 		period: period,
 		offset: offset,

@@ -16,6 +16,7 @@ type MFI struct {
 }
 
 func NewMFI(period int) *MFI {
+	period = indicators.ClampMin(period, 2)
 	return &MFI{
 		period:   period,
 		posFlows: make([]float64, period),

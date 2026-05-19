@@ -15,6 +15,7 @@ type TEMA struct {
 }
 
 func NewTEMA(period int) *TEMA {
+	period = indicators.ClampMin(period, 1)
 	return &TEMA{
 		period: period,
 		ema1:   NewEMA(period),

@@ -14,6 +14,7 @@ type Momentum struct {
 }
 
 func NewMomentum(period int) *Momentum {
+	period = indicators.ClampMin(period, 1)
 	return &Momentum{
 		period: period,
 		buffer: make([]float64, period+1),
