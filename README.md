@@ -198,5 +198,5 @@ Calculation is pure math. Config (colors, style, levels) is just metadata for Sc
 **Why Ring Buffers instead of arrays?**
 Performance at 1M+ candles. A ring buffer uses O(1) memory regardless of how many candles pass through. No copying, no growing.
 
-**Why `0` for "not ready yet"?**
-Indicators need a warmup phase (e.g., SMA(14) needs 14 candles). Until then they return `0`. In the frontend simply: `if value == 0 { skip }`.
+**Why `NaN` for "not ready yet"?**
+Indicators need a warmup phase (e.g., SMA(14) needs 14 candles). Until then they return `math.NaN()`. In the frontend: `if math.IsNaN(value) { skip }`. This avoids ambiguity — a real `0` (e.g., ROC returning zero) is never confused with "not enough data".
