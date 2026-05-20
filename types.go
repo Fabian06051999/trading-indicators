@@ -82,10 +82,10 @@ const (
 type OutputConfig struct {
 	Name      string
 	Color     string
-	UpColor   string      // conditional color when value > prev (e.g. green histogram)
-	DownColor string      // conditional color when value < prev (e.g. red histogram)
-	FillColor string      // fill color for Area style or band between series
-	Opacity   float64     // 0.0 = transparent, 1.0 = fully opaque
+	UpColor   string  // conditional color when value > prev (e.g. green histogram)
+	DownColor string  // conditional color when value < prev (e.g. red histogram)
+	FillColor string  // fill color for Area style or band between series
+	Opacity   float64 // 0.0 = transparent, 1.0 = fully opaque
 	Style     LineStyle
 	Width     int
 	DashArray []int       // SciChart strokeDashArray, e.g. [5,5] for dashed
