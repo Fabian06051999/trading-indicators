@@ -60,7 +60,7 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.linRegBuf[s.index] = val
 	s.index = (s.index + 1) % s.bbPeriod
 
-	if bbVals[0] == 0 || kcVals[0] == 0 {
+	if math.IsNaN(bbVals[0]) || math.IsNaN(kcVals[0]) {
 		s.out[0] = math.NaN()
 		s.out[1] = math.NaN()
 		return s.out

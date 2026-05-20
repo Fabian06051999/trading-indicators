@@ -58,7 +58,7 @@ func (h *HMA) update(candle indicators.OHLCV) {
 	halfVal := h.wmaHalf.UpdateAll(candle)[0]
 	fullVal := h.wmaFull.UpdateAll(candle)[0]
 
-	if halfVal == 0 || fullVal == 0 {
+	if math.IsNaN(halfVal) || math.IsNaN(fullVal) {
 		h.out[0] = math.NaN()
 		return
 	}

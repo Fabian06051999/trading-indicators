@@ -46,7 +46,7 @@ func (cv *ChaikinVolatility) UpdateAll(candle indicators.OHLCV) []float64 {
 func (cv *ChaikinVolatility) update(candle indicators.OHLCV) {
 	hl := candle.High - candle.Low
 	emaVal := cv.ema.UpdateAll(indicators.OHLCV{Close: hl})[0]
-	if emaVal == 0 {
+	if math.IsNaN(emaVal) {
 		cv.out[0] = math.NaN()
 		return
 	}

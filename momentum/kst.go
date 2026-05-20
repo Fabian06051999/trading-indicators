@@ -86,7 +86,7 @@ func (k *KST) UpdateAll(candle indicators.OHLCV) []float64 {
 	s3 := k.sma3.UpdateAll(indicators.OHLCV{Close: roc3})[0]
 	s4 := k.sma4.UpdateAll(indicators.OHLCV{Close: roc4})[0]
 
-	if s1 == 0 || s2 == 0 || s3 == 0 || s4 == 0 {
+	if math.IsNaN(s1) || math.IsNaN(s2) || math.IsNaN(s3) || math.IsNaN(s4) {
 		k.out[0] = math.NaN()
 		k.out[1] = math.NaN()
 		return k.out

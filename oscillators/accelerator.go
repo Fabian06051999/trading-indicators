@@ -42,7 +42,7 @@ func (ac *AcceleratorOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 
 func (ac *AcceleratorOscillator) update(candle indicators.OHLCV) {
 	aoVal := ac.ao.UpdateAll(candle)[0]
-	if aoVal == 0 {
+	if math.IsNaN(aoVal) {
 		ac.out[0] = math.NaN()
 		return
 	}

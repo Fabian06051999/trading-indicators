@@ -50,7 +50,7 @@ func (p *PPO) UpdateAll(candle indicators.OHLCV) []float64 {
 	fast := p.fastEMA.UpdateAll(candle)[0]
 	slow := p.slowEMA.UpdateAll(candle)[0]
 
-	if fast == 0 || slow == 0 {
+	if math.IsNaN(fast) || math.IsNaN(slow) {
 		p.out[0] = math.NaN()
 		p.out[1] = math.NaN()
 		p.out[2] = math.NaN()
@@ -60,7 +60,7 @@ func (p *PPO) UpdateAll(candle indicators.OHLCV) []float64 {
 	ppoVal := ((fast - slow) / slow) * 100
 	signal := p.signalEMA.UpdateAll(indicators.OHLCV{Close: ppoVal})[0]
 
-	if signal == 0 {
+	if math.IsNaN(signal) {
 		p.out[0] = ppoVal
 		p.out[1] = 0
 		p.out[2] = 0

@@ -43,13 +43,13 @@ func (d *DEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 func (d *DEMA) update(candle indicators.OHLCV) {
 	d.count++
 	ema1Val := d.ema1.UpdateAll(candle)[0]
-	if ema1Val == 0 {
+	if math.IsNaN(ema1Val) {
 		d.out[0] = math.NaN()
 		return
 	}
 
 	ema2Val := d.ema2.UpdateAll(indicators.OHLCV{Close: ema1Val})[0]
-	if ema2Val == 0 {
+	if math.IsNaN(ema2Val) {
 		d.out[0] = math.NaN()
 		return
 	}

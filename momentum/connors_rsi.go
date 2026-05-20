@@ -95,7 +95,7 @@ func (c *ConnorsRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 	percentRank := (float64(below) / float64(c.rankPeriod)) * 100
 
-	if rsiVal == 0 || streakRSIVal == 0 {
+	if math.IsNaN(rsiVal) || math.IsNaN(streakRSIVal) {
 		c.out[0] = math.NaN()
 		return c.out
 	}

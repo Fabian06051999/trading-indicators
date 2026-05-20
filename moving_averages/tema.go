@@ -45,19 +45,19 @@ func (t *TEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 func (t *TEMA) update(candle indicators.OHLCV) {
 	t.count++
 	ema1Val := t.ema1.UpdateAll(candle)[0]
-	if ema1Val == 0 {
+	if math.IsNaN(ema1Val) {
 		t.out[0] = math.NaN()
 		return
 	}
 
 	ema2Val := t.ema2.UpdateAll(indicators.OHLCV{Close: ema1Val})[0]
-	if ema2Val == 0 {
+	if math.IsNaN(ema2Val) {
 		t.out[0] = math.NaN()
 		return
 	}
 
 	ema3Val := t.ema3.UpdateAll(indicators.OHLCV{Close: ema2Val})[0]
-	if ema3Val == 0 {
+	if math.IsNaN(ema3Val) {
 		t.out[0] = math.NaN()
 		return
 	}

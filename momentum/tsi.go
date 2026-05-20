@@ -63,13 +63,13 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	// Double-smoothed price change
 	ds1 := t.longEMA1.UpdateAll(indicators.OHLCV{Close: pc})[0]
-	if ds1 == 0 {
+	if math.IsNaN(ds1) {
 		t.out[0] = math.NaN()
 		t.out[1] = math.NaN()
 		return t.out
 	}
 	ds := t.shortEMA1.UpdateAll(indicators.OHLCV{Close: ds1})[0]
-	if ds == 0 {
+	if math.IsNaN(ds) {
 		t.out[0] = math.NaN()
 		t.out[1] = math.NaN()
 		return t.out
@@ -81,13 +81,13 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 		apc = -apc
 	}
 	ads1 := t.longEMA2.UpdateAll(indicators.OHLCV{Close: apc})[0]
-	if ads1 == 0 {
+	if math.IsNaN(ads1) {
 		t.out[0] = math.NaN()
 		t.out[1] = math.NaN()
 		return t.out
 	}
 	ads := t.shortEMA2.UpdateAll(indicators.OHLCV{Close: ads1})[0]
-	if ads == 0 {
+	if math.IsNaN(ads) {
 		t.out[0] = math.NaN()
 		t.out[1] = math.NaN()
 		return t.out

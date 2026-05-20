@@ -36,7 +36,7 @@ func (a *ATRPercent) UpdateAll(candle indicators.OHLCV) []float64 {
 
 func (a *ATRPercent) update(candle indicators.OHLCV) {
 	atrVal := a.atr.UpdateAll(candle)[0]
-	if atrVal == 0 || candle.Close == 0 {
+	if math.IsNaN(atrVal) || candle.Close == 0 {
 		a.out[0] = math.NaN()
 		return
 	}

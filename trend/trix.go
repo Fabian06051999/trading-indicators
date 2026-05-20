@@ -46,23 +46,23 @@ func (t *TRIX) UpdateAll(candle indicators.OHLCV) []float64 {
 func (t *TRIX) update(candle indicators.OHLCV) {
 	t.count++
 	e1 := t.ema1.UpdateAll(candle)[0]
-	if e1 == 0 {
+	if math.IsNaN(e1) {
 		t.out[0] = math.NaN()
 		return
 	}
 	e2 := t.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
-	if e2 == 0 {
+	if math.IsNaN(e2) {
 		t.out[0] = math.NaN()
 		return
 	}
 	e3 := t.ema3.UpdateAll(indicators.OHLCV{Close: e2})[0]
-	if e3 == 0 {
+	if math.IsNaN(e3) {
 		t.prev = e3
 		t.out[0] = math.NaN()
 		return
 	}
 
-	if t.prev == 0 {
+	if math.IsNaN(t.prev) {
 		t.prev = e3
 		t.out[0] = math.NaN()
 		return

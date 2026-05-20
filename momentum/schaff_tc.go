@@ -51,7 +51,7 @@ func (s *SchaffTrendCycle) UpdateAll(candle indicators.OHLCV) []float64 {
 	fast := s.fastEMA.UpdateAll(candle)[0]
 	slow := s.slowEMA.UpdateAll(candle)[0]
 
-	if fast == 0 || slow == 0 {
+	if math.IsNaN(fast) || math.IsNaN(slow) {
 		s.out[0] = math.NaN()
 		return s.out
 	}

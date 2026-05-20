@@ -50,7 +50,7 @@ func (m *MACD) UpdateAll(candle indicators.OHLCV) []float64 {
 	fast := m.fastEMA.UpdateAll(candle)[0]
 	slow := m.slowEMA.UpdateAll(candle)[0]
 
-	if fast == 0 || slow == 0 {
+	if math.IsNaN(fast) || math.IsNaN(slow) {
 		m.out[0] = math.NaN()
 		m.out[1] = math.NaN()
 		m.out[2] = math.NaN()
@@ -60,10 +60,10 @@ func (m *MACD) UpdateAll(candle indicators.OHLCV) []float64 {
 	macdVal := fast - slow
 	signal := m.signalEMA.UpdateAll(indicators.OHLCV{Close: macdVal})[0]
 
-	if signal == 0 {
+	if math.IsNaN(signal) {
 		m.out[0] = macdVal
-		m.out[1] = 0
-		m.out[2] = 0
+		m.out[1] = math.NaN()
+		m.out[2] = math.NaN()
 		return m.out
 	}
 
