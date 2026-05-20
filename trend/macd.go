@@ -91,9 +91,9 @@ func (m *MACD) Config() *indicators.IndicatorConfig {
 		},
 		Pane: indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{
-			{Name: "MACD", Color: "#2196F3", Style: indicators.StyleLine, Width: 2},
-			{Name: "Signal", Color: "#FF9800", Style: indicators.StyleLine, Width: 1},
-			{Name: "Histogram", Color: "#4CAF50", Style: indicators.StyleHistogram, Width: 1},
+			{Name: "MACD", Color: "#2196F3", Style: indicators.StyleLine, Width: 2, Opacity: 1.0},
+			{Name: "Signal", Color: "#FF9800", Style: indicators.StyleLine, Width: 1, Opacity: 1.0},
+			{Name: "Histogram", Color: "#4CAF50", UpColor: "#4CAF50", DownColor: "#F44336", Style: indicators.StyleHistogram, Width: 1, Opacity: 0.8},
 		},
 	}
 }

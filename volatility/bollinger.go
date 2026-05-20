@@ -90,9 +90,9 @@ func (b *BollingerBands) Config() *indicators.IndicatorConfig {
 		},
 		Pane: indicators.PaneOverlay,
 		Outputs: []indicators.OutputConfig{
-			{Name: "Upper", Color: "#EF5350", Style: indicators.StyleLine, Width: 1},
-			{Name: "Middle", Color: "#2196F3", Style: indicators.StyleDashed, Width: 1},
-			{Name: "Lower", Color: "#66BB6A", Style: indicators.StyleLine, Width: 1},
+			{Name: "Upper", Color: "#EF5350", FillColor: "#EF535020", Style: indicators.StyleLine, Width: 1, Opacity: 1.0},
+			{Name: "Middle", Color: "#2196F3", Style: indicators.StyleDashed, Width: 1, Opacity: 1.0, DashArray: []int{5, 5}},
+			{Name: "Lower", Color: "#66BB6A", FillColor: "#66BB6A20", Style: indicators.StyleLine, Width: 1, Opacity: 1.0},
 		},
 	}
 }

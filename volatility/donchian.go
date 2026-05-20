@@ -86,9 +86,9 @@ func (d *DonchianChannel) Config() *indicators.IndicatorConfig {
 		},
 		Pane: indicators.PaneOverlay,
 		Outputs: []indicators.OutputConfig{
-			{Name: "Upper", Color: "#EF5350", Style: indicators.StyleLine, Width: 1},
-			{Name: "Middle", Color: "#9E9E9E", Style: indicators.StyleDashed, Width: 1},
-			{Name: "Lower", Color: "#66BB6A", Style: indicators.StyleLine, Width: 1},
+			{Name: "Upper", Color: "#EF5350", FillColor: "#EF535015", Style: indicators.StyleLine, Width: 1, Opacity: 1.0},
+			{Name: "Middle", Color: "#9E9E9E", Style: indicators.StyleDashed, Width: 1, Opacity: 0.7, DashArray: []int{5, 5}},
+			{Name: "Lower", Color: "#66BB6A", FillColor: "#66BB6A15", Style: indicators.StyleLine, Width: 1, Opacity: 1.0},
 		},
 	}
 }

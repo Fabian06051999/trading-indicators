@@ -92,7 +92,7 @@ func (p *PPO) Config() *indicators.IndicatorConfig {
 		Outputs: []indicators.OutputConfig{
 			{Name: "PPO", Color: "#2196F3", Style: indicators.StyleLine, Width: 2},
 			{Name: "Signal", Color: "#FF9800", Style: indicators.StyleLine, Width: 1},
-			{Name: "Histogram", Color: "#4CAF50", Style: indicators.StyleHistogram, Width: 1},
+			{Name: "Histogram", Color: "#4CAF50", UpColor: "#4CAF50", DownColor: "#F44336", Style: indicators.StyleHistogram, Width: 1, Opacity: 0.8},
 		},
 	}
 }

@@ -142,7 +142,7 @@ func (p *ParabolicSAR) Config() *indicators.IndicatorConfig {
 		},
 		Pane: indicators.PaneOverlay,
 		Outputs: []indicators.OutputConfig{
-			{Name: "SAR", Color: "#FF9800", Style: indicators.StyleDots, Width: 2},
+			{Name: "SAR", Color: "#FF9800", Style: indicators.StyleDots, Width: 2, Opacity: 1.0, Marker: indicators.MarkerEllipse},
 		},
 	}
 }
