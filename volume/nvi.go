@@ -76,7 +76,7 @@ type PVI struct {
 }
 
 func NewPVI() *PVI {
-	return &PVI{value: 1000}
+	return &PVI{value: 1000, out: make([]float64, 1)}
 }
 
 func (p *PVI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
