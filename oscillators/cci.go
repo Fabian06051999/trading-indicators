@@ -68,7 +68,7 @@ func (c *CCI) update(candle indicators.OHLCV) {
 	md /= float64(c.period)
 
 	if md == 0 {
-		c.out[0] = math.NaN()
+		c.out[0] = 0
 		return
 	}
 	c.out[0] = (tp - sma) / (0.015 * md)
