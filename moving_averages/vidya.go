@@ -17,6 +17,7 @@ type VIDYA struct {
 	prevClose float64
 	index     int
 	count     int
+	out       []float64
 }
 
 func NewVIDYA(period, cmoPeriod int) *VIDYA {
@@ -26,6 +27,7 @@ func NewVIDYA(period, cmoPeriod int) *VIDYA {
 		sc:        2.0 / float64(period+1),
 		gains:     make([]float64, cmoPeriod),
 		losses:    make([]float64, cmoPeriod),
+		out:       make([]float64, 1),
 	}
 }
 
@@ -34,18 +36,25 @@ func (v *VIDYA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	v.Reset()
 
 	for i, c := range candles {
-		result[i] = v.UpdateAll(c)[0]
+		v.update(c)
+		result[i] = v.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (v *VIDYA) UpdateAll(candle indicators.OHLCV) []float64 {
+	v.update(candle)
+	return v.out
+}
+
+func (v *VIDYA) update(candle indicators.OHLCV) {
 	v.count++
 
 	if v.count == 1 {
 		v.prevClose = candle.Close
 		v.value = candle.Close
-		return []float64{math.NaN()}
+		v.out[0] = math.NaN()
+		return
 	}
 
 	change := candle.Close - v.prevClose
@@ -64,7 +73,8 @@ func (v *VIDYA) UpdateAll(candle indicators.OHLCV) []float64 {
 	v.index = (v.index + 1) % v.cmoPeriod
 
 	if v.count <= v.cmoPeriod {
-		return []float64{math.NaN()}
+		v.out[0] = math.NaN()
+		return
 	}
 
 	// CMO = (sumGains - sumLosses) / (sumGains + sumLosses)
@@ -81,7 +91,7 @@ func (v *VIDYA) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	v.value = v.value + v.sc*cmo*(candle.Close-v.value)
-	return []float64{v.value}
+	v.out[0] = v.value
 }
 
 func (v *VIDYA) Reset() {

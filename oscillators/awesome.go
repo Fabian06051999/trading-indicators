@@ -1,8 +1,8 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // AwesomeOscillator implements Bill Williams' Awesome Oscillator.
@@ -15,12 +15,14 @@ type AwesomeOscillator struct {
 	fastIndex  int
 	slowIndex  int
 	count      int
+	out        []float64
 }
 
 func NewAwesomeOscillator() *AwesomeOscillator {
 	return &AwesomeOscillator{
 		fastBuffer: make([]float64, 5),
 		slowBuffer: make([]float64, 34),
+		out:        make([]float64, 1),
 	}
 }
 
@@ -29,12 +31,18 @@ func (ao *AwesomeOscillator) CalculateAll(candles []indicators.OHLCV) [][]float6
 	ao.Reset()
 
 	for i, c := range candles {
-		result[i] = ao.UpdateAll(c)[0]
+		ao.update(c)
+		result[i] = ao.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (ao *AwesomeOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
+	ao.update(candle)
+	return ao.out
+}
+
+func (ao *AwesomeOscillator) update(candle indicators.OHLCV) {
 	median := (candle.High + candle.Low) / 2.0
 	ao.count++
 
@@ -51,12 +59,13 @@ func (ao *AwesomeOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 	ao.slowIndex = (ao.slowIndex + 1) % 34
 
 	if ao.count < 34 {
-		return []float64{math.NaN()}
+		ao.out[0] = math.NaN()
+		return
 	}
 
 	fastSMA := ao.fastSum / 5.0
 	slowSMA := ao.slowSum / 34.0
-	return []float64{fastSMA - slowSMA}
+	ao.out[0] = fastSMA - slowSMA
 }
 
 func (ao *AwesomeOscillator) Reset() {
@@ -71,7 +80,7 @@ func (ao *AwesomeOscillator) Reset() {
 
 func (ao *AwesomeOscillator) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Awesome Oscillator",
+		Name:       "Awesome Oscillator",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{

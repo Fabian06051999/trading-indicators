@@ -9,6 +9,7 @@ import (
 
 // SqueezeMomentum implements the Squeeze Momentum Indicator (TTM Squeeze).
 type SqueezeMomentum struct {
+	out       []float64
 	bbPeriod  int
 	bbStdDev  float64
 	kcPeriod  int
@@ -29,6 +30,7 @@ func NewSqueezeMomentum(bbPeriod int, bbStdDev float64, kcPeriod int, kcMulti fl
 		bb:        volatility.NewBollingerBands(bbPeriod, bbStdDev),
 		kc:        volatility.NewKeltnerChannel(kcPeriod, kcPeriod, kcMulti),
 		linRegBuf: make([]float64, bbPeriod),
+		out:       make([]float64, 2),
 	}
 }
 
@@ -59,7 +61,9 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.index = (s.index + 1) % s.bbPeriod
 
 	if bbVals[0] == 0 || kcVals[0] == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		s.out[0] = math.NaN()
+		s.out[1] = math.NaN()
+		return s.out
 	}
 
 	// Squeeze: BB inside KC
@@ -70,7 +74,9 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	// Momentum: linear regression of (close - midline(BB))
 	if s.count < s.bbPeriod {
-		return []float64{math.NaN(), sqz}
+		s.out[0] = math.NaN()
+		s.out[1] = sqz
+		return s.out
 	}
 
 	// Simple linear regression value
@@ -97,7 +103,9 @@ func (s *SqueezeMomentum) UpdateAll(candle indicators.OHLCV) []float64 {
 		mom = intercept + slope*n
 	}
 
-	return []float64{mom, sqz}
+	s.out[0] = mom
+	s.out[1] = sqz
+	return s.out
 }
 
 func (s *SqueezeMomentum) Reset() {

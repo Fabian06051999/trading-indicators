@@ -9,6 +9,7 @@ import (
 
 // WaveTrend implements the WaveTrend oscillator (LazyBear).
 type WaveTrend struct {
+	out       []float64
 	chPeriod  int
 	avgPeriod int
 	ema1      *moving_averages.EMA
@@ -27,6 +28,7 @@ func NewWaveTrend(chPeriod, avgPeriod int) *WaveTrend {
 		ema2:      moving_averages.NewEMA(chPeriod),
 		ema3:      moving_averages.NewEMA(avgPeriod),
 		d:         make([]float64, 4),
+		out:       make([]float64, 2),
 	}
 }
 
@@ -48,13 +50,17 @@ func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	esa := w.ema1.UpdateAll(indicators.OHLCV{Close: hlc3})[0]
 	if esa == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		w.out[0] = math.NaN()
+		w.out[1] = math.NaN()
+		return w.out
 	}
 
 	d := math.Abs(hlc3 - esa)
 	dd := w.ema2.UpdateAll(indicators.OHLCV{Close: d})[0]
 	if dd == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		w.out[0] = math.NaN()
+		w.out[1] = math.NaN()
+		return w.out
 	}
 
 	ci := 0.0
@@ -64,7 +70,9 @@ func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	wt1 := w.ema3.UpdateAll(indicators.OHLCV{Close: ci})[0]
 	if wt1 == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		w.out[0] = math.NaN()
+		w.out[1] = math.NaN()
+		return w.out
 	}
 
 	// WT2 = SMA(WT1, 4)
@@ -73,11 +81,15 @@ func (w *WaveTrend) UpdateAll(candle indicators.OHLCV) []float64 {
 	w.dCount++
 
 	if w.dCount < 4 {
-		return []float64{wt1, 0}
+		w.out[0] = wt1
+		w.out[1] = 0
+		return w.out
 	}
 
 	wt2 := (w.d[0] + w.d[1] + w.d[2] + w.d[3]) / 4.0
-	return []float64{wt1, wt2}
+	w.out[0] = wt1
+	w.out[1] = wt2
+	return w.out
 }
 
 func (w *WaveTrend) Reset() {

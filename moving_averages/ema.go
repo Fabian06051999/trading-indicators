@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // EMA implements the Exponential Moving Average.
@@ -12,6 +12,7 @@ type EMA struct {
 	value      float64
 	count      int
 	sum        float64
+	out        []float64
 }
 
 func NewEMA(period int) *EMA {
@@ -19,6 +20,7 @@ func NewEMA(period int) *EMA {
 	return &EMA{
 		period:     period,
 		multiplier: 2.0 / float64(period+1),
+		out:        make([]float64, 1),
 	}
 }
 
@@ -27,22 +29,29 @@ func (e *EMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	e.Reset()
 
 	for i, c := range candles {
-		result[i] = e.UpdateAll(c)[0]
+		e.update(c)
+		result[i] = e.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (e *EMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	e.update(candle)
+	return e.out
+}
+
+func (e *EMA) update(candle indicators.OHLCV) {
 	e.count++
 	if e.count <= e.period {
 		e.sum += candle.Close
 		if e.count == e.period {
 			e.value = e.sum / float64(e.period)
 		}
-		return []float64{math.NaN()}
+		e.out[0] = math.NaN()
+		return
 	}
 	e.value = (candle.Close-e.value)*e.multiplier + e.value
-	return []float64{e.value}
+	e.out[0] = e.value
 }
 
 func (e *EMA) Reset() {

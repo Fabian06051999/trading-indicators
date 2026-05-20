@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // WMA implements the Weighted Moving Average.
@@ -11,6 +11,7 @@ type WMA struct {
 	buffer []float64
 	index  int
 	count  int
+	out    []float64
 }
 
 func NewWMA(period int) *WMA {
@@ -18,6 +19,7 @@ func NewWMA(period int) *WMA {
 	return &WMA{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -26,19 +28,26 @@ func (w *WMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	w.Reset()
 
 	for i, c := range candles {
-		result[i] = w.UpdateAll(c)[0]
+		w.update(c)
+		result[i] = w.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (w *WMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	w.update(candle)
+	return w.out
+}
+
+func (w *WMA) update(candle indicators.OHLCV) {
 	w.buffer[w.index] = candle.Close
 	w.index = (w.index + 1) % w.period
 	if w.count < w.period {
 		w.count++
 	}
 	if w.count < w.period {
-		return []float64{math.NaN()}
+		w.out[0] = math.NaN()
+		return
 	}
 
 	weightSum := 0.0
@@ -49,7 +58,7 @@ func (w *WMA) UpdateAll(candle indicators.OHLCV) []float64 {
 		weightSum += w.buffer[idx] * weight
 		divisor += weight
 	}
-	return []float64{weightSum / divisor}
+	w.out[0] = weightSum / divisor
 }
 
 func (w *WMA) Reset() {

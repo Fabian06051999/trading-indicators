@@ -1,26 +1,27 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // SchaffTrendCycle implements the Schaff Trend Cycle.
 type SchaffTrendCycle struct {
-	macdFast   int
-	macdSlow   int
+	out         []float64
+	macdFast    int
+	macdSlow    int
 	cyclePeriod int
-	fastEMA    *moving_averages.EMA
-	slowEMA    *moving_averages.EMA
-	macdBuf    []float64
-	stoch1Buf  []float64
-	macdIdx    int
-	stoch1Idx  int
-	macdCount  int
+	fastEMA     *moving_averages.EMA
+	slowEMA     *moving_averages.EMA
+	macdBuf     []float64
+	stoch1Buf   []float64
+	macdIdx     int
+	stoch1Idx   int
+	macdCount   int
 	stoch1Count int
-	pf         float64
-	pff        float64
+	pf          float64
+	pff         float64
 }
 
 func NewSchaffTrendCycle(macdFast, macdSlow, cyclePeriod int) *SchaffTrendCycle {
@@ -32,6 +33,7 @@ func NewSchaffTrendCycle(macdFast, macdSlow, cyclePeriod int) *SchaffTrendCycle 
 		slowEMA:     moving_averages.NewEMA(macdSlow),
 		macdBuf:     make([]float64, cyclePeriod),
 		stoch1Buf:   make([]float64, cyclePeriod),
+		out:         make([]float64, 1),
 	}
 }
 
@@ -50,7 +52,8 @@ func (s *SchaffTrendCycle) UpdateAll(candle indicators.OHLCV) []float64 {
 	slow := s.slowEMA.UpdateAll(candle)[0]
 
 	if fast == 0 || slow == 0 {
-		return []float64{math.NaN()}
+		s.out[0] = math.NaN()
+		return s.out
 	}
 
 	macdVal := fast - slow
@@ -61,7 +64,8 @@ func (s *SchaffTrendCycle) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.macdCount++
 
 	if s.macdCount < s.cyclePeriod {
-		return []float64{math.NaN()}
+		s.out[0] = math.NaN()
+		return s.out
 	}
 
 	ll := s.macdBuf[0]
@@ -89,7 +93,8 @@ func (s *SchaffTrendCycle) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.stoch1Count++
 
 	if s.stoch1Count < s.cyclePeriod {
-		return []float64{math.NaN()}
+		s.out[0] = math.NaN()
+		return s.out
 	}
 
 	ll2 := s.stoch1Buf[0]
@@ -109,7 +114,8 @@ func (s *SchaffTrendCycle) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	s.pff = s.pff + 0.5*(stoch2-s.pff)
-	return []float64{s.pff}
+	s.out[0] = s.pff
+	return s.out
 }
 
 func (s *SchaffTrendCycle) Reset() {

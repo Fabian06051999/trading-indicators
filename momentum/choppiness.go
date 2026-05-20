@@ -8,6 +8,7 @@ import (
 
 // ChoppinessIndex measures if the market is choppy (range-bound) or trending.
 type ChoppinessIndex struct {
+	out       []float64
 	period    int
 	trBuffer  []float64
 	highs     []float64
@@ -23,6 +24,7 @@ func NewChoppinessIndex(period int) *ChoppinessIndex {
 		trBuffer: make([]float64, period),
 		highs:    make([]float64, period),
 		lows:     make([]float64, period),
+		out:      make([]float64, 1),
 	}
 }
 
@@ -45,7 +47,8 @@ func (ci *ChoppinessIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 		ci.lows[ci.index] = candle.Low
 		ci.trBuffer[ci.index] = candle.High - candle.Low
 		ci.index = (ci.index + 1) % ci.period
-		return []float64{math.NaN()}
+		ci.out[0] = math.NaN()
+		return ci.out
 	}
 
 	tr := math.Max(candle.High-candle.Low,
@@ -58,7 +61,8 @@ func (ci *ChoppinessIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	ci.index = (ci.index + 1) % ci.period
 
 	if ci.count < ci.period {
-		return []float64{math.NaN()}
+		ci.out[0] = math.NaN()
+		return ci.out
 	}
 
 	// Sum of TR
@@ -81,10 +85,12 @@ func (ci *ChoppinessIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	hl := hh - ll
 	if hl == 0 {
-		return []float64{math.NaN()}
+		ci.out[0] = math.NaN()
+		return ci.out
 	}
 
-	return []float64{100 * math.Log10(sumTR/hl) / math.Log10(float64(ci.period))}
+	ci.out[0] = 100 * math.Log10(sumTR/hl) / math.Log10(float64(ci.period))
+	return ci.out
 }
 
 func (ci *ChoppinessIndex) Reset() {

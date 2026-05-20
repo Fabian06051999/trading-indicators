@@ -1,9 +1,9 @@
 package volatility
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // ChaikinVolatility implements Chaikin's Volatility indicator.
@@ -14,6 +14,7 @@ type ChaikinVolatility struct {
 	buffer    []float64
 	index     int
 	count     int
+	out       []float64
 }
 
 func NewChaikinVolatility(emaPeriod, rocPeriod int) *ChaikinVolatility {
@@ -22,6 +23,7 @@ func NewChaikinVolatility(emaPeriod, rocPeriod int) *ChaikinVolatility {
 		rocPeriod: rocPeriod,
 		ema:       moving_averages.NewEMA(emaPeriod),
 		buffer:    make([]float64, rocPeriod+1),
+		out:       make([]float64, 1),
 	}
 }
 
@@ -30,16 +32,23 @@ func (cv *ChaikinVolatility) CalculateAll(candles []indicators.OHLCV) [][]float6
 	cv.Reset()
 
 	for i, c := range candles {
-		result[i] = cv.UpdateAll(c)[0]
+		cv.update(c)
+		result[i] = cv.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (cv *ChaikinVolatility) UpdateAll(candle indicators.OHLCV) []float64 {
+	cv.update(candle)
+	return cv.out
+}
+
+func (cv *ChaikinVolatility) update(candle indicators.OHLCV) {
 	hl := candle.High - candle.Low
 	emaVal := cv.ema.UpdateAll(indicators.OHLCV{Close: hl})[0]
 	if emaVal == 0 {
-		return []float64{math.NaN()}
+		cv.out[0] = math.NaN()
+		return
 	}
 
 	cv.buffer[cv.index] = emaVal
@@ -47,15 +56,17 @@ func (cv *ChaikinVolatility) UpdateAll(candle indicators.OHLCV) []float64 {
 	cv.index = (cv.index + 1) % (cv.rocPeriod + 1)
 
 	if cv.count <= cv.rocPeriod {
-		return []float64{math.NaN()}
+		cv.out[0] = math.NaN()
+		return
 	}
 
 	pastVal := cv.buffer[cv.index]
 	if pastVal == 0 {
-		return []float64{math.NaN()}
+		cv.out[0] = math.NaN()
+		return
 	}
 
-	return []float64{((emaVal - pastVal) / pastVal) * 100}
+	cv.out[0] = ((emaVal - pastVal) / pastVal) * 100
 }
 
 func (cv *ChaikinVolatility) Reset() {

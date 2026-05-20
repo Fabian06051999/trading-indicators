@@ -1,8 +1,8 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // DeMarker implements the DeMarker oscillator.
@@ -14,6 +14,7 @@ type DeMarker struct {
 	prevLow  float64
 	index    int
 	count    int
+	out      []float64
 }
 
 func NewDeMarker(period int) *DeMarker {
@@ -22,6 +23,7 @@ func NewDeMarker(period int) *DeMarker {
 		period: period,
 		deMax:  make([]float64, period),
 		deMin:  make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -30,18 +32,25 @@ func (d *DeMarker) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	d.Reset()
 
 	for i, c := range candles {
-		result[i] = d.UpdateAll(c)[0]
+		d.update(c)
+		result[i] = d.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (d *DeMarker) UpdateAll(candle indicators.OHLCV) []float64 {
+	d.update(candle)
+	return d.out
+}
+
+func (d *DeMarker) update(candle indicators.OHLCV) {
 	d.count++
 
 	if d.count == 1 {
 		d.prevHigh = candle.High
 		d.prevLow = candle.Low
-		return []float64{math.NaN()}
+		d.out[0] = math.NaN()
+		return
 	}
 
 	deMax := 0.0
@@ -62,7 +71,8 @@ func (d *DeMarker) UpdateAll(candle indicators.OHLCV) []float64 {
 	d.index = (d.index + 1) % d.period
 
 	if d.count <= d.period {
-		return []float64{math.NaN()}
+		d.out[0] = math.NaN()
+		return
 	}
 
 	sumMax := 0.0
@@ -73,9 +83,10 @@ func (d *DeMarker) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if sumMax+sumMin == 0 {
-		return []float64{0.5}
+		d.out[0] = 0.5
+		return
 	}
-	return []float64{sumMax / (sumMax + sumMin)}
+	d.out[0] = sumMax / (sumMax + sumMin)
 }
 
 func (d *DeMarker) Reset() {

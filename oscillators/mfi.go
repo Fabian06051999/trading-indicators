@@ -1,18 +1,19 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // MFI implements the Money Flow Index.
 type MFI struct {
-	period     int
-	posFlows   []float64
-	negFlows   []float64
-	prevTP     float64
-	index      int
-	count      int
+	period   int
+	posFlows []float64
+	negFlows []float64
+	prevTP   float64
+	index    int
+	count    int
+	out      []float64
 }
 
 func NewMFI(period int) *MFI {
@@ -21,6 +22,7 @@ func NewMFI(period int) *MFI {
 		period:   period,
 		posFlows: make([]float64, period),
 		negFlows: make([]float64, period),
+		out:      make([]float64, 1),
 	}
 }
 
@@ -29,19 +31,26 @@ func (m *MFI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	m.Reset()
 
 	for i, c := range candles {
-		result[i] = m.UpdateAll(c)[0]
+		m.update(c)
+		result[i] = m.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (m *MFI) UpdateAll(candle indicators.OHLCV) []float64 {
+	m.update(candle)
+	return m.out
+}
+
+func (m *MFI) update(candle indicators.OHLCV) {
 	tp := (candle.High + candle.Low + candle.Close) / 3.0
 	mf := tp * candle.Volume
 	m.count++
 
 	if m.count == 1 {
 		m.prevTP = tp
-		return []float64{math.NaN()}
+		m.out[0] = math.NaN()
+		return
 	}
 
 	// Classify money flow
@@ -56,7 +65,8 @@ func (m *MFI) UpdateAll(candle indicators.OHLCV) []float64 {
 	m.index = (m.index + 1) % m.period
 
 	if m.count <= m.period {
-		return []float64{math.NaN()}
+		m.out[0] = math.NaN()
+		return
 	}
 
 	posMF := 0.0
@@ -67,10 +77,11 @@ func (m *MFI) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if negMF == 0 {
-		return []float64{100}
+		m.out[0] = 100
+		return
 	}
 	mfRatio := posMF / negMF
-	return []float64{100 - 100/(1+mfRatio)}
+	m.out[0] = 100 - 100/(1+mfRatio)
 }
 
 func (m *MFI) Reset() {

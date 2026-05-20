@@ -1,12 +1,13 @@
 package volume
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // VolumeProfile provides volume-at-price distribution for a given window.
 type VolumeProfile struct {
+	out    []float64
 	period int
 	bins   int
 	buffer []indicators.OHLCV
@@ -19,6 +20,7 @@ func NewVolumeProfile(period, bins int) *VolumeProfile {
 		period: period,
 		bins:   bins,
 		buffer: make([]indicators.OHLCV, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -40,7 +42,8 @@ func (vp *VolumeProfile) UpdateAll(candle indicators.OHLCV) []float64 {
 		vp.count++
 	}
 	if vp.count < vp.period {
-		return []float64{math.NaN()}
+		vp.out[0] = math.NaN()
+		return vp.out
 	}
 
 	// Find price range
@@ -56,7 +59,8 @@ func (vp *VolumeProfile) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if high == low {
-		return []float64{high}
+		vp.out[0] = high
+		return vp.out
 	}
 
 	binSize := (high - low) / float64(vp.bins)
@@ -85,7 +89,8 @@ func (vp *VolumeProfile) UpdateAll(candle indicators.OHLCV) []float64 {
 		}
 	}
 
-	return []float64{low + (float64(maxBin)+0.5)*binSize}
+	vp.out[0] = low + (float64(maxBin)+0.5)*binSize
+	return vp.out
 }
 
 func (vp *VolumeProfile) Reset() {

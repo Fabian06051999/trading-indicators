@@ -8,12 +8,13 @@ import (
 
 // BollingerBands implements Bollinger Bands (upper, middle, lower).
 type BollingerBands struct {
-	period  int
-	stdDev  float64
-	buffer  []float64
-	sum     float64
-	index   int
-	count   int
+	out    []float64
+	period int
+	stdDev float64
+	buffer []float64
+	sum    float64
+	index  int
+	count  int
 }
 
 func NewBollingerBands(period int, stdDev float64) *BollingerBands {
@@ -21,6 +22,7 @@ func NewBollingerBands(period int, stdDev float64) *BollingerBands {
 		period: period,
 		stdDev: stdDev,
 		buffer: make([]float64, period),
+		out:    make([]float64, 3),
 	}
 }
 
@@ -48,7 +50,10 @@ func (b *BollingerBands) UpdateAll(candle indicators.OHLCV) []float64 {
 		b.count++
 	}
 	if b.count < b.period {
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		b.out[0] = math.NaN()
+		b.out[1] = math.NaN()
+		b.out[2] = math.NaN()
+		return b.out
 	}
 
 	sma := b.sum / float64(b.period)
@@ -63,7 +68,10 @@ func (b *BollingerBands) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	upper := sma + b.stdDev*sd
 	lower := sma - b.stdDev*sd
-	return []float64{upper, sma, lower}
+	b.out[0] = upper
+	b.out[1] = sma
+	b.out[2] = lower
+	return b.out
 }
 
 func (b *BollingerBands) Reset() {

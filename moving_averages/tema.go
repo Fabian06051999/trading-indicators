@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // TEMA implements the Triple Exponential Moving Average.
@@ -12,6 +12,7 @@ type TEMA struct {
 	ema2   *EMA
 	ema3   *EMA
 	count  int
+	out    []float64
 }
 
 func NewTEMA(period int) *TEMA {
@@ -21,6 +22,7 @@ func NewTEMA(period int) *TEMA {
 		ema1:   NewEMA(period),
 		ema2:   NewEMA(period),
 		ema3:   NewEMA(period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -29,29 +31,38 @@ func (t *TEMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	t.Reset()
 
 	for i, c := range candles {
-		result[i] = t.UpdateAll(c)[0]
+		t.update(c)
+		result[i] = t.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (t *TEMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	t.update(candle)
+	return t.out
+}
+
+func (t *TEMA) update(candle indicators.OHLCV) {
 	t.count++
 	ema1Val := t.ema1.UpdateAll(candle)[0]
 	if ema1Val == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 
 	ema2Val := t.ema2.UpdateAll(indicators.OHLCV{Close: ema1Val})[0]
 	if ema2Val == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 
 	ema3Val := t.ema3.UpdateAll(indicators.OHLCV{Close: ema2Val})[0]
 	if ema3Val == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 
-	return []float64{3*ema1Val - 3*ema2Val + ema3Val}
+	t.out[0] = 3*ema1Val - 3*ema2Val + ema3Val
 }
 
 func (t *TEMA) Reset() {

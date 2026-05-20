@@ -239,7 +239,12 @@ Performance at 1M+ candles. A ring buffer uses O(1) memory regardless of how man
 |-----------|----------|---------------|---------------|
 | SMA(200) | 9.6ms | 3.8ns | 0 |
 | EMA(200) | 6.2ms | ~5ns | 0 |
-| RSI(14) | 41ms | 45ns | 1 |
+| RSI(14) | 13.9ms | 14.5ns | 0 |
+
+All indicators use zero-allocation updates — the returned `[]float64` is reused between calls. If you need to store the value, copy it immediately:
+```go
+value := indicator.UpdateAll(candle)[0]  // read immediately — safe
+```
 
 Run benchmarks: `go test ./... -bench=. -benchmem`
 

@@ -1,13 +1,14 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // MACD implements the Moving Average Convergence Divergence.
 type MACD struct {
+	out          []float64
 	fastPeriod   int
 	slowPeriod   int
 	signalPeriod int
@@ -25,6 +26,7 @@ func NewMACD(fastPeriod, slowPeriod, signalPeriod int) *MACD {
 		fastEMA:      moving_averages.NewEMA(fastPeriod),
 		slowEMA:      moving_averages.NewEMA(slowPeriod),
 		signalEMA:    moving_averages.NewEMA(signalPeriod),
+		out:          make([]float64, 3),
 	}
 }
 
@@ -49,18 +51,27 @@ func (m *MACD) UpdateAll(candle indicators.OHLCV) []float64 {
 	slow := m.slowEMA.UpdateAll(candle)[0]
 
 	if fast == 0 || slow == 0 {
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		m.out[0] = math.NaN()
+		m.out[1] = math.NaN()
+		m.out[2] = math.NaN()
+		return m.out
 	}
 
 	macdVal := fast - slow
 	signal := m.signalEMA.UpdateAll(indicators.OHLCV{Close: macdVal})[0]
 
 	if signal == 0 {
-		return []float64{macdVal, 0, 0}
+		m.out[0] = macdVal
+		m.out[1] = 0
+		m.out[2] = 0
+		return m.out
 	}
 
 	hist := macdVal - signal
-	return []float64{macdVal, signal, hist}
+	m.out[0] = macdVal
+	m.out[1] = signal
+	m.out[2] = hist
+	return m.out
 }
 
 func (m *MACD) Reset() {

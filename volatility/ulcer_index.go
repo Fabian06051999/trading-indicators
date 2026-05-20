@@ -8,6 +8,7 @@ import (
 
 // UlcerIndex implements the Ulcer Index (downside volatility).
 type UlcerIndex struct {
+	out    []float64
 	period int
 	buffer []float64
 	index  int
@@ -19,6 +20,7 @@ func NewUlcerIndex(period int) *UlcerIndex {
 	return &UlcerIndex{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -48,14 +50,16 @@ func (u *UlcerIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	u.index = (u.index + 1) % u.period
 
 	if u.count < u.period {
-		return []float64{math.NaN()}
+		u.out[0] = math.NaN()
+		return u.out
 	}
 
 	sum := 0.0
 	for i := 0; i < u.period; i++ {
 		sum += u.buffer[i]
 	}
-	return []float64{math.Sqrt(sum / float64(u.period))}
+	u.out[0] = math.Sqrt(sum / float64(u.period))
+	return u.out
 }
 
 func (u *UlcerIndex) Reset() {

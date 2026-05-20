@@ -15,6 +15,7 @@ type KAMA struct {
 	value      float64
 	index      int
 	count      int
+	out        []float64
 }
 
 func NewKAMA(period, fastPeriod, slowPeriod int) *KAMA {
@@ -23,6 +24,7 @@ func NewKAMA(period, fastPeriod, slowPeriod int) *KAMA {
 		fastPeriod: fastPeriod,
 		slowPeriod: slowPeriod,
 		buffer:     make([]float64, period+1),
+		out:        make([]float64, 1),
 	}
 }
 
@@ -31,12 +33,18 @@ func (k *KAMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	k.Reset()
 
 	for i, c := range candles {
-		result[i] = k.UpdateAll(c)[0]
+		k.update(c)
+		result[i] = k.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (k *KAMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	k.update(candle)
+	return k.out
+}
+
+func (k *KAMA) update(candle indicators.OHLCV) {
 	k.buffer[k.index] = candle.Close
 	k.count++
 
@@ -44,9 +52,11 @@ func (k *KAMA) UpdateAll(candle indicators.OHLCV) []float64 {
 		k.index = (k.index + 1) % (k.period + 1)
 		if k.count == k.period {
 			k.value = candle.Close
-			return []float64{k.value}
+			k.out[0] = k.value
+			return
 		}
-		return []float64{math.NaN()}
+		k.out[0] = math.NaN()
+		return
 	}
 
 	oldestIdx := (k.index + 1) % (k.period + 1)
@@ -76,7 +86,7 @@ func (k *KAMA) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	k.value = k.value + sc*(candle.Close-k.value)
 	k.index = (k.index + 1) % (k.period + 1)
-	return []float64{k.value}
+	k.out[0] = k.value
 }
 
 func (k *KAMA) Reset() {

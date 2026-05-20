@@ -1,17 +1,18 @@
 package volume
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // ChaikinMF implements the Chaikin Money Flow indicator.
 type ChaikinMF struct {
-	period   int
-	mfvBuf   []float64
-	volBuf   []float64
-	index    int
-	count    int
+	out    []float64
+	period int
+	mfvBuf []float64
+	volBuf []float64
+	index  int
+	count  int
 }
 
 func NewChaikinMF(period int) *ChaikinMF {
@@ -19,6 +20,7 @@ func NewChaikinMF(period int) *ChaikinMF {
 		period: period,
 		mfvBuf: make([]float64, period),
 		volBuf: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -47,7 +49,8 @@ func (c *ChaikinMF) UpdateAll(candle indicators.OHLCV) []float64 {
 		c.count++
 	}
 	if c.count < c.period {
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return c.out
 	}
 
 	sumMFV := 0.0
@@ -58,9 +61,11 @@ func (c *ChaikinMF) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if sumVol == 0 {
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return c.out
 	}
-	return []float64{sumMFV / sumVol}
+	c.out[0] = sumMFV / sumVol
+	return c.out
 }
 
 func (c *ChaikinMF) Reset() {

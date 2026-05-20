@@ -6,13 +6,14 @@ import (
 
 // OBV implements On Balance Volume.
 type OBV struct {
+	out       []float64
 	value     float64
 	prevClose float64
 	count     int
 }
 
 func NewOBV() *OBV {
-	return &OBV{}
+	return &OBV{out: make([]float64, 1)}
 }
 
 func (o *OBV) CalculateAll(candles []indicators.OHLCV) [][]float64 {
@@ -30,7 +31,8 @@ func (o *OBV) UpdateAll(candle indicators.OHLCV) []float64 {
 	if o.count == 1 {
 		o.prevClose = candle.Close
 		o.value = candle.Volume
-		return []float64{o.value}
+		o.out[0] = o.value
+		return o.out
 	}
 
 	if candle.Close > o.prevClose {
@@ -39,7 +41,8 @@ func (o *OBV) UpdateAll(candle indicators.OHLCV) []float64 {
 		o.value -= candle.Volume
 	}
 	o.prevClose = candle.Close
-	return []float64{o.value}
+	o.out[0] = o.value
+	return o.out
 }
 
 func (o *OBV) Reset() {
@@ -50,7 +53,7 @@ func (o *OBV) Reset() {
 
 func (o *OBV) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "On Balance Volume",
+		Name:       "On Balance Volume",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{

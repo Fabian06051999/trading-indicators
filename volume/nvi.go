@@ -6,6 +6,7 @@ import (
 
 // NVI implements the Negative Volume Index.
 type NVI struct {
+	out       []float64
 	value     float64
 	prevClose float64
 	prevVol   float64
@@ -13,7 +14,7 @@ type NVI struct {
 }
 
 func NewNVI() *NVI {
-	return &NVI{value: 1000}
+	return &NVI{value: 1000, out: make([]float64, 1)}
 }
 
 func (n *NVI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
@@ -32,7 +33,8 @@ func (n *NVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	if n.count == 1 {
 		n.prevClose = candle.Close
 		n.prevVol = candle.Volume
-		return []float64{n.value}
+		n.out[0] = n.value
+		return n.out
 	}
 
 	if candle.Volume < n.prevVol && n.prevClose != 0 {
@@ -42,7 +44,8 @@ func (n *NVI) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	n.prevClose = candle.Close
 	n.prevVol = candle.Volume
-	return []float64{n.value}
+	n.out[0] = n.value
+	return n.out
 }
 
 func (n *NVI) Reset() {
@@ -54,7 +57,7 @@ func (n *NVI) Reset() {
 
 func (n *NVI) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Negative Volume Index",
+		Name:       "Negative Volume Index",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{
@@ -65,6 +68,7 @@ func (n *NVI) Config() *indicators.IndicatorConfig {
 
 // PVI implements the Positive Volume Index.
 type PVI struct {
+	out       []float64
 	value     float64
 	prevClose float64
 	prevVol   float64
@@ -91,7 +95,8 @@ func (p *PVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	if p.count == 1 {
 		p.prevClose = candle.Close
 		p.prevVol = candle.Volume
-		return []float64{p.value}
+		p.out[0] = p.value
+		return p.out
 	}
 
 	if candle.Volume > p.prevVol && p.prevClose != 0 {
@@ -101,7 +106,8 @@ func (p *PVI) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	p.prevClose = candle.Close
 	p.prevVol = candle.Volume
-	return []float64{p.value}
+	p.out[0] = p.value
+	return p.out
 }
 
 func (p *PVI) Reset() {
@@ -113,7 +119,7 @@ func (p *PVI) Reset() {
 
 func (p *PVI) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Positive Volume Index",
+		Name:       "Positive Volume Index",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{

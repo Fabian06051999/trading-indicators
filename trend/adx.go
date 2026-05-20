@@ -8,6 +8,7 @@ import (
 
 // ADX implements the Average Directional Index with +DI and -DI.
 type ADX struct {
+	out       []float64
 	period    int
 	prevHigh  float64
 	prevLow   float64
@@ -24,6 +25,7 @@ func NewADX(period int) *ADX {
 	period = indicators.ClampMin(period, 2)
 	return &ADX{
 		period: period,
+		out:    make([]float64, 3),
 	}
 }
 
@@ -49,7 +51,10 @@ func (a *ADX) UpdateAll(candle indicators.OHLCV) []float64 {
 		a.prevHigh = candle.High
 		a.prevLow = candle.Low
 		a.prevClose = candle.Close
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		a.out[0] = math.NaN()
+		a.out[1] = math.NaN()
+		a.out[2] = math.NaN()
+		return a.out
 	}
 
 	// True Range
@@ -93,9 +98,15 @@ func (a *ADX) UpdateAll(candle indicators.OHLCV) []float64 {
 				dx = math.Abs(pdi-ndi) / (pdi + ndi) * 100
 			}
 			a.adxSum = dx
-			return []float64{0, pdi, ndi}
+			a.out[0] = 0
+			a.out[1] = pdi
+			a.out[2] = ndi
+			return a.out
 		}
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		a.out[0] = math.NaN()
+		a.out[1] = math.NaN()
+		a.out[2] = math.NaN()
+		return a.out
 	}
 
 	// Smoothed values using Wilder's method
@@ -121,11 +132,17 @@ func (a *ADX) UpdateAll(candle indicators.OHLCV) []float64 {
 		if step == a.period-1 {
 			a.adxValue = a.adxSum / p
 		}
-		return []float64{0, pdi, ndi}
+		a.out[0] = 0
+		a.out[1] = pdi
+		a.out[2] = ndi
+		return a.out
 	}
 
 	a.adxValue = (a.adxValue*float64(a.period-1) + dx) / p
-	return []float64{a.adxValue, pdi, ndi}
+	a.out[0] = a.adxValue
+	a.out[1] = pdi
+	a.out[2] = ndi
+	return a.out
 }
 
 func (a *ADX) Reset() {

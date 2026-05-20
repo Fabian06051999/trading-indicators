@@ -1,12 +1,13 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // Momentum implements the basic Momentum indicator (price - price[n]).
 type Momentum struct {
+	out    []float64
 	period int
 	buffer []float64
 	index  int
@@ -18,6 +19,7 @@ func NewMomentum(period int) *Momentum {
 	return &Momentum{
 		period: period,
 		buffer: make([]float64, period+1),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -37,13 +39,15 @@ func (m *Momentum) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if m.count <= m.period {
 		m.index = (m.index + 1) % (m.period + 1)
-		return []float64{math.NaN()}
+		m.out[0] = math.NaN()
+		return m.out
 	}
 
 	pastIdx := (m.index + 1) % (m.period + 1)
 	result := candle.Close - m.buffer[pastIdx]
 	m.index = (m.index + 1) % (m.period + 1)
-	return []float64{result}
+	m.out[0] = result
+	return m.out
 }
 
 func (m *Momentum) Reset() {

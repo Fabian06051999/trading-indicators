@@ -1,12 +1,13 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // StochRSI implements the Stochastic RSI.
 type StochRSI struct {
+	out       []float64
 	rsiPeriod int
 	stochK    int
 	stochD    int
@@ -27,6 +28,7 @@ func NewStochRSI(rsiPeriod, stochK, stochD int) *StochRSI {
 		rsi:       NewRSI(rsiPeriod),
 		rsiBuffer: make([]float64, stochK),
 		kBuffer:   make([]float64, stochD),
+		out:       make([]float64, 2),
 	}
 }
 
@@ -46,7 +48,9 @@ func (s *StochRSI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	rsiVal := s.rsi.UpdateAll(candle)[0]
 	if rsiVal == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		s.out[0] = math.NaN()
+		s.out[1] = math.NaN()
+		return s.out
 	}
 
 	s.rsiBuffer[s.rsiIndex] = rsiVal
@@ -54,7 +58,9 @@ func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.rsiCount++
 
 	if s.rsiCount < s.stochK {
-		return []float64{math.NaN(), math.NaN()}
+		s.out[0] = math.NaN()
+		s.out[1] = math.NaN()
+		return s.out
 	}
 
 	// Find min/max RSI in window
@@ -80,7 +86,9 @@ func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	s.kCount++
 
 	if s.kCount < s.stochD {
-		return []float64{k, 0}
+		s.out[0] = k
+		s.out[1] = 0
+		return s.out
 	}
 
 	d := 0.0
@@ -89,7 +97,9 @@ func (s *StochRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 	d /= float64(s.stochD)
 
-	return []float64{k, d}
+	s.out[0] = k
+	s.out[1] = d
+	return s.out
 }
 
 func (s *StochRSI) Reset() {

@@ -1,20 +1,21 @@
 package volume
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // VWAP implements the Volume Weighted Average Price.
 // Resets each session (call Reset() at session boundaries).
 type VWAP struct {
+	out    []float64
 	cumTPV float64
 	cumVol float64
 	count  int
 }
 
 func NewVWAP() *VWAP {
-	return &VWAP{}
+	return &VWAP{out: make([]float64, 1)}
 }
 
 func (v *VWAP) CalculateAll(candles []indicators.OHLCV) [][]float64 {
@@ -34,9 +35,11 @@ func (v *VWAP) UpdateAll(candle indicators.OHLCV) []float64 {
 	v.cumVol += candle.Volume
 
 	if v.cumVol == 0 {
-		return []float64{math.NaN()}
+		v.out[0] = math.NaN()
+		return v.out
 	}
-	return []float64{v.cumTPV / v.cumVol}
+	v.out[0] = v.cumTPV / v.cumVol
+	return v.out
 }
 
 func (v *VWAP) Reset() {
@@ -47,7 +50,7 @@ func (v *VWAP) Reset() {
 
 func (v *VWAP) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Volume Weighted Average Price",
+		Name:       "Volume Weighted Average Price",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneOverlay,
 		Outputs: []indicators.OutputConfig{

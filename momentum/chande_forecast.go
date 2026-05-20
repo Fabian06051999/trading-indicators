@@ -1,13 +1,14 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // ChandeForecast implements the Chande Forecast Oscillator.
 // CFO = ((Close - LinearRegression(Close, period)) / Close) * 100
 type ChandeForecast struct {
+	out    []float64
 	period int
 	buffer []float64
 	index  int
@@ -18,6 +19,7 @@ func NewChandeForecast(period int) *ChandeForecast {
 	return &ChandeForecast{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -38,7 +40,8 @@ func (cf *ChandeForecast) UpdateAll(candle indicators.OHLCV) []float64 {
 		cf.count++
 	}
 	if cf.count < cf.period {
-		return []float64{math.NaN()}
+		cf.out[0] = math.NaN()
+		return cf.out
 	}
 
 	// Linear regression forecast
@@ -60,14 +63,16 @@ func (cf *ChandeForecast) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	denom := n*sumX2 - sumX*sumX
 	if denom == 0 || candle.Close == 0 {
-		return []float64{math.NaN()}
+		cf.out[0] = math.NaN()
+		return cf.out
 	}
 
 	slope := (n*sumXY - sumX*sumY) / denom
 	intercept := (sumY - slope*sumX) / n
 	forecast := intercept + slope*(n+1)
 
-	return []float64{((candle.Close - forecast) / candle.Close) * 100}
+	cf.out[0] = ((candle.Close - forecast) / candle.Close) * 100
+	return cf.out
 }
 
 func (cf *ChandeForecast) Reset() {

@@ -8,6 +8,7 @@ import (
 
 // Supertrend implements the Supertrend indicator.
 type Supertrend struct {
+	out       []float64
 	period    int
 	multi     float64
 	atrVal    float64
@@ -27,6 +28,7 @@ func NewSupertrend(period int, multiplier float64) *Supertrend {
 		period: period,
 		multi:  multiplier,
 		trend:  1,
+		out:    make([]float64, 2),
 	}
 }
 
@@ -49,7 +51,9 @@ func (s *Supertrend) UpdateAll(candle indicators.OHLCV) []float64 {
 	if s.count == 1 {
 		s.prevClose = candle.Close
 		s.trSum = candle.High - candle.Low
-		return []float64{math.NaN(), math.NaN()}
+		s.out[0] = math.NaN()
+		s.out[1] = math.NaN()
+		return s.out
 	}
 
 	// True Range
@@ -62,7 +66,9 @@ func (s *Supertrend) UpdateAll(candle indicators.OHLCV) []float64 {
 		if s.count == s.period {
 			s.atrVal = s.trSum / float64(s.period)
 		}
-		return []float64{math.NaN(), math.NaN()}
+		s.out[0] = math.NaN()
+		s.out[1] = math.NaN()
+		return s.out
 	}
 
 	// Wilder's ATR smoothing
@@ -104,7 +110,9 @@ func (s *Supertrend) UpdateAll(candle indicators.OHLCV) []float64 {
 	if s.trend == -1 {
 		st = s.upper
 	}
-	return []float64{st, float64(s.trend)}
+	s.out[0] = st
+	s.out[1] = float64(s.trend)
+	return s.out
 }
 
 func (s *Supertrend) Reset() {

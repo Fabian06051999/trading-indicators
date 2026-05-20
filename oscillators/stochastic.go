@@ -6,16 +6,17 @@ import (
 
 // Stochastic implements the Stochastic Oscillator (%K and %D).
 type Stochastic struct {
-	kPeriod  int
-	dPeriod  int
-	slowing  int
-	highs    []float64
-	lows     []float64
-	rawK     []float64
-	index    int
-	kIndex   int
-	count    int
-	kCount   int
+	out     []float64
+	kPeriod int
+	dPeriod int
+	slowing int
+	highs   []float64
+	lows    []float64
+	rawK    []float64
+	index   int
+	kIndex  int
+	count   int
+	kCount  int
 }
 
 func NewStochastic(kPeriod, dPeriod, slowing int) *Stochastic {
@@ -26,6 +27,7 @@ func NewStochastic(kPeriod, dPeriod, slowing int) *Stochastic {
 		highs:   make([]float64, kPeriod),
 		lows:    make([]float64, kPeriod),
 		rawK:    make([]float64, dPeriod),
+		out:     make([]float64, 2),
 	}
 }
 
@@ -44,7 +46,9 @@ func (s *Stochastic) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 
 func (s *Stochastic) UpdateAll(candle indicators.OHLCV) []float64 {
 	k, d := s.updateBoth(candle)
-	return []float64{k, d}
+	s.out[0] = k
+	s.out[1] = d
+	return s.out
 }
 
 func (s *Stochastic) updateBoth(candle indicators.OHLCV) (float64, float64) {

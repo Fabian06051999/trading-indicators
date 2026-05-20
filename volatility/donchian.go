@@ -1,12 +1,13 @@
 package volatility
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // DonchianChannel implements Donchian Channels (highest high / lowest low).
 type DonchianChannel struct {
+	out    []float64
 	period int
 	highs  []float64
 	lows   []float64
@@ -19,6 +20,7 @@ func NewDonchianChannel(period int) *DonchianChannel {
 		period: period,
 		highs:  make([]float64, period),
 		lows:   make([]float64, period),
+		out:    make([]float64, 3),
 	}
 }
 
@@ -45,7 +47,10 @@ func (d *DonchianChannel) UpdateAll(candle indicators.OHLCV) []float64 {
 		d.count++
 	}
 	if d.count < d.period {
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		d.out[0] = math.NaN()
+		d.out[1] = math.NaN()
+		d.out[2] = math.NaN()
+		return d.out
 	}
 
 	hh := d.highs[0]
@@ -60,7 +65,10 @@ func (d *DonchianChannel) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	mid := (hh + ll) / 2.0
-	return []float64{hh, mid, ll}
+	d.out[0] = hh
+	d.out[1] = mid
+	d.out[2] = ll
+	return d.out
 }
 
 func (d *DonchianChannel) Reset() {

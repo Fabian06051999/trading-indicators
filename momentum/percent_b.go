@@ -1,19 +1,21 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/volatility"
+	"math"
 )
 
 // PercentB implements %B (position within Bollinger Bands).
 type PercentB struct {
-	bb *volatility.BollingerBands
+	out []float64
+	bb  *volatility.BollingerBands
 }
 
 func NewPercentB(period int, stdDev float64) *PercentB {
 	return &PercentB{
-		bb: volatility.NewBollingerBands(period, stdDev),
+		bb:  volatility.NewBollingerBands(period, stdDev),
+		out: make([]float64, 1),
 	}
 }
 
@@ -33,10 +35,12 @@ func (p *PercentB) UpdateAll(candle indicators.OHLCV) []float64 {
 	lower := bands[2]
 
 	if upper == 0 || lower == 0 || upper == lower {
-		return []float64{math.NaN()}
+		p.out[0] = math.NaN()
+		return p.out
 	}
 
-	return []float64{(candle.Close - lower) / (upper - lower)}
+	p.out[0] = (candle.Close - lower) / (upper - lower)
+	return p.out
 }
 
 func (p *PercentB) Reset() {

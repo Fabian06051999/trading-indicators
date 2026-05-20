@@ -1,8 +1,8 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // DPO implements the Detrended Price Oscillator.
@@ -13,6 +13,7 @@ type DPO struct {
 	sum    float64
 	index  int
 	count  int
+	out    []float64
 }
 
 func NewDPO(period int) *DPO {
@@ -21,6 +22,7 @@ func NewDPO(period int) *DPO {
 		period: period,
 		shift:  shift,
 		buffer: make([]float64, period+shift),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -29,19 +31,26 @@ func (d *DPO) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	d.Reset()
 
 	for i, c := range candles {
-		result[i] = d.UpdateAll(c)[0]
+		d.update(c)
+		result[i] = d.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (d *DPO) UpdateAll(candle indicators.OHLCV) []float64 {
+	d.update(candle)
+	return d.out
+}
+
+func (d *DPO) update(candle indicators.OHLCV) {
 	bufLen := len(d.buffer)
 	d.buffer[d.index] = candle.Close
 	d.count++
 
 	if d.count < d.period+d.shift {
 		d.index = (d.index + 1) % bufLen
-		return []float64{math.NaN()}
+		d.out[0] = math.NaN()
+		return
 	}
 
 	// SMA of current period window
@@ -58,7 +67,7 @@ func (d *DPO) UpdateAll(candle indicators.OHLCV) []float64 {
 	dpoVal := d.buffer[shiftedIdx] - sma
 
 	d.index = (d.index + 1) % bufLen
-	return []float64{dpoVal}
+	d.out[0] = dpoVal
 }
 
 func (d *DPO) Reset() {

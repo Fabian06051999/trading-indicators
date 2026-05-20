@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // SMA implements the Simple Moving Average.
@@ -12,6 +12,7 @@ type SMA struct {
 	sum    float64
 	index  int
 	count  int
+	out    []float64
 }
 
 func NewSMA(period int) *SMA {
@@ -19,6 +20,7 @@ func NewSMA(period int) *SMA {
 	return &SMA{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -27,12 +29,18 @@ func (s *SMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	s.Reset()
 
 	for i, c := range candles {
-		result[i] = s.UpdateAll(c)[0]
+		s.update(c)
+		result[i] = s.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (s *SMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	s.update(candle)
+	return s.out
+}
+
+func (s *SMA) update(candle indicators.OHLCV) {
 	old := s.buffer[s.index]
 	s.buffer[s.index] = candle.Close
 	s.sum += candle.Close - old
@@ -41,9 +49,10 @@ func (s *SMA) UpdateAll(candle indicators.OHLCV) []float64 {
 		s.count++
 	}
 	if s.count < s.period {
-		return []float64{math.NaN()}
+		s.out[0] = math.NaN()
+		return
 	}
-	return []float64{s.sum / float64(s.period)}
+	s.out[0] = s.sum / float64(s.period)
 }
 
 func (s *SMA) Reset() {

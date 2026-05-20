@@ -1,12 +1,13 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // ROC implements the Rate of Change indicator.
 type ROC struct {
+	out    []float64
 	period int
 	buffer []float64
 	index  int
@@ -18,6 +19,7 @@ func NewROC(period int) *ROC {
 	return &ROC{
 		period: period,
 		buffer: make([]float64, period+1),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -37,7 +39,8 @@ func (r *ROC) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if r.count <= r.period {
 		r.index = (r.index + 1) % (r.period + 1)
-		return []float64{math.NaN()}
+		r.out[0] = math.NaN()
+		return r.out
 	}
 
 	pastIdx := (r.index + 1) % (r.period + 1)
@@ -45,9 +48,11 @@ func (r *ROC) UpdateAll(candle indicators.OHLCV) []float64 {
 	r.index = (r.index + 1) % (r.period + 1)
 
 	if pastVal == 0 {
-		return []float64{math.NaN()}
+		r.out[0] = math.NaN()
+		return r.out
 	}
-	return []float64{((candle.Close - pastVal) / pastVal) * 100}
+	r.out[0] = ((candle.Close - pastVal) / pastVal) * 100
+	return r.out
 }
 
 func (r *ROC) Reset() {

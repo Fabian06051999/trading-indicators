@@ -1,23 +1,24 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // TSI implements the True Strength Index.
 type TSI struct {
-	longPeriod  int
-	shortPeriod int
+	out          []float64
+	longPeriod   int
+	shortPeriod  int
 	signalPeriod int
-	longEMA1    *moving_averages.EMA
-	shortEMA1   *moving_averages.EMA
-	longEMA2    *moving_averages.EMA
-	shortEMA2   *moving_averages.EMA
-	signalEMA   *moving_averages.EMA
-	prevClose   float64
-	count       int
+	longEMA1     *moving_averages.EMA
+	shortEMA1    *moving_averages.EMA
+	longEMA2     *moving_averages.EMA
+	shortEMA2    *moving_averages.EMA
+	signalEMA    *moving_averages.EMA
+	prevClose    float64
+	count        int
 }
 
 func NewTSI(longPeriod, shortPeriod, signalPeriod int) *TSI {
@@ -30,6 +31,7 @@ func NewTSI(longPeriod, shortPeriod, signalPeriod int) *TSI {
 		longEMA2:     moving_averages.NewEMA(longPeriod),
 		shortEMA2:    moving_averages.NewEMA(shortPeriod),
 		signalEMA:    moving_averages.NewEMA(signalPeriod),
+		out:          make([]float64, 2),
 	}
 }
 
@@ -51,7 +53,9 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if t.count == 1 {
 		t.prevClose = candle.Close
-		return []float64{math.NaN(), math.NaN()}
+		t.out[0] = math.NaN()
+		t.out[1] = math.NaN()
+		return t.out
 	}
 
 	pc := candle.Close - t.prevClose
@@ -60,11 +64,15 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	// Double-smoothed price change
 	ds1 := t.longEMA1.UpdateAll(indicators.OHLCV{Close: pc})[0]
 	if ds1 == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		t.out[0] = math.NaN()
+		t.out[1] = math.NaN()
+		return t.out
 	}
 	ds := t.shortEMA1.UpdateAll(indicators.OHLCV{Close: ds1})[0]
 	if ds == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		t.out[0] = math.NaN()
+		t.out[1] = math.NaN()
+		return t.out
 	}
 
 	// Double-smoothed absolute price change
@@ -74,11 +82,15 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 	ads1 := t.longEMA2.UpdateAll(indicators.OHLCV{Close: apc})[0]
 	if ads1 == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		t.out[0] = math.NaN()
+		t.out[1] = math.NaN()
+		return t.out
 	}
 	ads := t.shortEMA2.UpdateAll(indicators.OHLCV{Close: ads1})[0]
 	if ads == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		t.out[0] = math.NaN()
+		t.out[1] = math.NaN()
+		return t.out
 	}
 
 	tsiVal := 0.0
@@ -87,7 +99,9 @@ func (t *TSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	signal := t.signalEMA.UpdateAll(indicators.OHLCV{Close: tsiVal})[0]
-	return []float64{tsiVal, signal}
+	t.out[0] = tsiVal
+	t.out[1] = signal
+	return t.out
 }
 
 func (t *TSI) Reset() {

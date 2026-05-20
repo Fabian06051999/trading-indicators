@@ -13,12 +13,14 @@ type ATR struct {
 	prevClose float64
 	count     int
 	sum       float64
+	out       []float64
 }
 
 func NewATR(period int) *ATR {
 	period = indicators.ClampMin(period, 1)
 	return &ATR{
 		period: period,
+		out:    make([]float64, 1),
 	}
 }
 
@@ -27,19 +29,26 @@ func (a *ATR) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.UpdateAll(c)[0]
+		a.update(c)
+		result[i] = a.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (a *ATR) UpdateAll(candle indicators.OHLCV) []float64 {
+	a.update(candle)
+	return a.out
+}
+
+func (a *ATR) update(candle indicators.OHLCV) {
 	a.count++
 
 	if a.count == 1 {
 		a.prevClose = candle.Close
 		tr := candle.High - candle.Low
 		a.sum = tr
-		return []float64{math.NaN()}
+		a.out[0] = math.NaN()
+		return
 	}
 
 	tr := math.Max(candle.High-candle.Low,
@@ -50,14 +59,16 @@ func (a *ATR) UpdateAll(candle indicators.OHLCV) []float64 {
 		a.sum += tr
 		if a.count == a.period {
 			a.value = a.sum / float64(a.period)
-			return []float64{a.value}
+			a.out[0] = a.value
+			return
 		}
-		return []float64{math.NaN()}
+		a.out[0] = math.NaN()
+		return
 	}
 
 	// Wilder's smoothing
 	a.value = (a.value*float64(a.period-1) + tr) / float64(a.period)
-	return []float64{a.value}
+	a.out[0] = a.value
 }
 
 func (a *ATR) Reset() {

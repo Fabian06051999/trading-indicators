@@ -1,18 +1,20 @@
 package volatility
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // ATRPercent implements the ATR as a percentage of price (normalized ATR).
 type ATRPercent struct {
 	atr *ATR
+	out []float64
 }
 
 func NewATRPercent(period int) *ATRPercent {
 	return &ATRPercent{
 		atr: NewATR(period),
+		out: make([]float64, 1),
 	}
 }
 
@@ -21,17 +23,24 @@ func (a *ATRPercent) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.UpdateAll(c)[0]
+		a.update(c)
+		result[i] = a.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (a *ATRPercent) UpdateAll(candle indicators.OHLCV) []float64 {
+	a.update(candle)
+	return a.out
+}
+
+func (a *ATRPercent) update(candle indicators.OHLCV) {
 	atrVal := a.atr.UpdateAll(candle)[0]
 	if atrVal == 0 || candle.Close == 0 {
-		return []float64{math.NaN()}
+		a.out[0] = math.NaN()
+		return
 	}
-	return []float64{(atrVal / candle.Close) * 100}
+	a.out[0] = (atrVal / candle.Close) * 100
 }
 
 func (a *ATRPercent) Reset() {

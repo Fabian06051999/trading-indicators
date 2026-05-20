@@ -1,13 +1,14 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // CoppockCurve implements the Coppock Curve.
 type CoppockCurve struct {
+	out        []float64
 	wmaPeriod  int
 	roc1Period int
 	roc2Period int
@@ -30,6 +31,7 @@ func NewCoppockCurve(wmaPeriod, roc1Period, roc2Period int) *CoppockCurve {
 		wma:        moving_averages.NewWMA(wmaPeriod),
 		buffer:     make([]float64, maxP+1),
 		maxPeriod:  maxP,
+		out:        make([]float64, 1),
 	}
 }
 
@@ -49,7 +51,8 @@ func (c *CoppockCurve) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if c.count <= c.maxPeriod {
 		c.index = (c.index + 1) % (c.maxPeriod + 1)
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return c.out
 	}
 
 	// ROC calculations
@@ -68,7 +71,8 @@ func (c *CoppockCurve) UpdateAll(candle indicators.OHLCV) []float64 {
 	c.index = (c.index + 1) % (c.maxPeriod + 1)
 
 	sum := roc1 + roc2
-	return []float64{c.wma.UpdateAll(indicators.OHLCV{Close: sum})[0]}
+	c.out[0] = c.wma.UpdateAll(indicators.OHLCV{Close: sum})[0]
+	return c.out
 }
 
 func (c *CoppockCurve) Reset() {

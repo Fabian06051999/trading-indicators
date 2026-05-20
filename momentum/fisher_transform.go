@@ -8,6 +8,7 @@ import (
 
 // FisherTransform implements the Ehlers Fisher Transform.
 type FisherTransform struct {
+	out       []float64
 	period    int
 	highs     []float64
 	lows      []float64
@@ -23,6 +24,7 @@ func NewFisherTransform(period int) *FisherTransform {
 		period: period,
 		highs:  make([]float64, period),
 		lows:   make([]float64, period),
+		out:    make([]float64, 2),
 	}
 }
 
@@ -47,7 +49,9 @@ func (f *FisherTransform) UpdateAll(candle indicators.OHLCV) []float64 {
 		f.count++
 	}
 	if f.count < f.period {
-		return []float64{math.NaN(), math.NaN()}
+		f.out[0] = math.NaN()
+		f.out[1] = math.NaN()
+		return f.out
 	}
 
 	// Find highest high and lowest low
@@ -83,7 +87,9 @@ func (f *FisherTransform) UpdateAll(candle indicators.OHLCV) []float64 {
 	f.prevValue = f.value
 	f.value = 0.5*math.Log((1+norm)/(1-norm)) + 0.5*f.value
 
-	return []float64{f.value, f.prevValue}
+	f.out[0] = f.value
+	f.out[1] = f.prevValue
+	return f.out
 }
 
 func (f *FisherTransform) Reset() {

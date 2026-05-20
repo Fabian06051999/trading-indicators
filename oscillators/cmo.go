@@ -1,8 +1,8 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // CMO implements the Chande Momentum Oscillator.
@@ -13,6 +13,7 @@ type CMO struct {
 	prevClose float64
 	index     int
 	count     int
+	out       []float64
 }
 
 func NewCMO(period int) *CMO {
@@ -21,6 +22,7 @@ func NewCMO(period int) *CMO {
 		period: period,
 		gains:  make([]float64, period),
 		losses: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -29,17 +31,24 @@ func (c *CMO) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	c.Reset()
 
 	for i, candle := range candles {
-		result[i] = c.UpdateAll(candle)[0]
+		c.update(candle)
+		result[i] = c.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (c *CMO) UpdateAll(candle indicators.OHLCV) []float64 {
+	c.update(candle)
+	return c.out
+}
+
+func (c *CMO) update(candle indicators.OHLCV) {
 	c.count++
 
 	if c.count == 1 {
 		c.prevClose = candle.Close
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return
 	}
 
 	change := candle.Close - c.prevClose
@@ -55,7 +64,8 @@ func (c *CMO) UpdateAll(candle indicators.OHLCV) []float64 {
 	c.index = (c.index + 1) % c.period
 
 	if c.count <= c.period {
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return
 	}
 
 	sumGains := 0.0
@@ -66,9 +76,10 @@ func (c *CMO) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if sumGains+sumLosses == 0 {
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return
 	}
-	return []float64{((sumGains - sumLosses) / (sumGains + sumLosses)) * 100}
+	c.out[0] = ((sumGains - sumLosses) / (sumGains + sumLosses)) * 100
 }
 
 func (c *CMO) Reset() {

@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // DEMA implements the Double Exponential Moving Average.
@@ -11,6 +11,7 @@ type DEMA struct {
 	ema1   *EMA
 	ema2   *EMA
 	count  int
+	out    []float64
 }
 
 func NewDEMA(period int) *DEMA {
@@ -19,6 +20,7 @@ func NewDEMA(period int) *DEMA {
 		period: period,
 		ema1:   NewEMA(period),
 		ema2:   NewEMA(period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -27,24 +29,32 @@ func (d *DEMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	d.Reset()
 
 	for i, c := range candles {
-		result[i] = d.UpdateAll(c)[0]
+		d.update(c)
+		result[i] = d.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (d *DEMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	d.update(candle)
+	return d.out
+}
+
+func (d *DEMA) update(candle indicators.OHLCV) {
 	d.count++
 	ema1Val := d.ema1.UpdateAll(candle)[0]
 	if ema1Val == 0 {
-		return []float64{math.NaN()}
+		d.out[0] = math.NaN()
+		return
 	}
 
 	ema2Val := d.ema2.UpdateAll(indicators.OHLCV{Close: ema1Val})[0]
 	if ema2Val == 0 {
-		return []float64{math.NaN()}
+		d.out[0] = math.NaN()
+		return
 	}
 
-	return []float64{2*ema1Val - ema2Val}
+	d.out[0] = 2*ema1Val - ema2Val
 }
 
 func (d *DEMA) Reset() {

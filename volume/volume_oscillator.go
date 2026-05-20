@@ -1,13 +1,14 @@
 package volume
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // VolumeOscillator implements the Volume Oscillator (fast EMA - slow EMA of volume).
 type VolumeOscillator struct {
+	out        []float64
 	fastPeriod int
 	slowPeriod int
 	fastEMA    *moving_averages.EMA
@@ -20,6 +21,7 @@ func NewVolumeOscillator(fastPeriod, slowPeriod int) *VolumeOscillator {
 		slowPeriod: slowPeriod,
 		fastEMA:    moving_averages.NewEMA(fastPeriod),
 		slowEMA:    moving_averages.NewEMA(slowPeriod),
+		out:        make([]float64, 1),
 	}
 }
 
@@ -39,10 +41,12 @@ func (v *VolumeOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 	slow := v.slowEMA.UpdateAll(volCandle)[0]
 
 	if fast == 0 || slow == 0 {
-		return []float64{math.NaN()}
+		v.out[0] = math.NaN()
+		return v.out
 	}
 
-	return []float64{((fast - slow) / slow) * 100}
+	v.out[0] = ((fast - slow) / slow) * 100
+	return v.out
 }
 
 func (v *VolumeOscillator) Reset() {

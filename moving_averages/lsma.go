@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // LSMA implements the Least Squares Moving Average (Linear Regression).
@@ -11,6 +11,7 @@ type LSMA struct {
 	buffer []float64
 	index  int
 	count  int
+	out    []float64
 }
 
 func NewLSMA(period int) *LSMA {
@@ -18,6 +19,7 @@ func NewLSMA(period int) *LSMA {
 	return &LSMA{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -26,19 +28,26 @@ func (l *LSMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	l.Reset()
 
 	for i, c := range candles {
-		result[i] = l.UpdateAll(c)[0]
+		l.update(c)
+		result[i] = l.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (l *LSMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	l.update(candle)
+	return l.out
+}
+
+func (l *LSMA) update(candle indicators.OHLCV) {
 	l.buffer[l.index] = candle.Close
 	l.index = (l.index + 1) % l.period
 	if l.count < l.period {
 		l.count++
 	}
 	if l.count < l.period {
-		return []float64{math.NaN()}
+		l.out[0] = math.NaN()
+		return
 	}
 
 	// Linear regression using least squares
@@ -60,13 +69,14 @@ func (l *LSMA) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	denom := n*sumX2 - sumX*sumX
 	if denom == 0 {
-		return []float64{math.NaN()}
+		l.out[0] = math.NaN()
+		return
 	}
 
 	slope := (n*sumXY - sumX*sumY) / denom
 	intercept := (sumY - slope*sumX) / n
 
-	return []float64{intercept + slope*n}
+	l.out[0] = intercept + slope*n
 }
 
 func (l *LSMA) Reset() {

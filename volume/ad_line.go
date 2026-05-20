@@ -6,11 +6,12 @@ import (
 
 // ADLine implements the Accumulation/Distribution Line.
 type ADLine struct {
+	out   []float64
 	value float64
 }
 
 func NewADLine() *ADLine {
-	return &ADLine{}
+	return &ADLine{out: make([]float64, 1)}
 }
 
 func (a *ADLine) CalculateAll(candles []indicators.OHLCV) [][]float64 {
@@ -26,11 +27,13 @@ func (a *ADLine) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (a *ADLine) UpdateAll(candle indicators.OHLCV) []float64 {
 	hl := candle.High - candle.Low
 	if hl == 0 {
-		return []float64{a.value}
+		a.out[0] = a.value
+		return a.out
 	}
 	mfm := ((candle.Close - candle.Low) - (candle.High - candle.Close)) / hl
 	a.value += mfm * candle.Volume
-	return []float64{a.value}
+	a.out[0] = a.value
+	return a.out
 }
 
 func (a *ADLine) Reset() {
@@ -39,7 +42,7 @@ func (a *ADLine) Reset() {
 
 func (a *ADLine) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Accumulation/Distribution Line",
+		Name:       "Accumulation/Distribution Line",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{

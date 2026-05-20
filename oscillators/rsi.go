@@ -1,25 +1,26 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
-// RSI implements the Relative Strength Index.
 type RSI struct {
-	period   int
-	avgGain  float64
-	avgLoss  float64
+	period    int
+	avgGain   float64
+	avgLoss   float64
 	prevClose float64
-	count    int
-	gains    float64
-	losses   float64
+	count     int
+	gains     float64
+	losses    float64
+	out       []float64
 }
 
 func NewRSI(period int) *RSI {
 	period = indicators.ClampMin(period, 2)
 	return &RSI{
 		period: period,
+		out:    make([]float64, 1),
 	}
 }
 
@@ -28,17 +29,24 @@ func (r *RSI) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	r.Reset()
 
 	for i, c := range candles {
-		result[i] = r.UpdateAll(c)[0]
+		r.update(c)
+		result[i] = r.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (r *RSI) UpdateAll(candle indicators.OHLCV) []float64 {
+	r.update(candle)
+	return r.out
+}
+
+func (r *RSI) update(candle indicators.OHLCV) {
 	r.count++
 
 	if r.count == 1 {
 		r.prevClose = candle.Close
-		return []float64{math.NaN()}
+		r.out[0] = math.NaN()
+		return
 	}
 
 	change := candle.Close - r.prevClose
@@ -61,22 +69,26 @@ func (r *RSI) UpdateAll(candle indicators.OHLCV) []float64 {
 			r.avgLoss = r.losses / float64(r.period)
 
 			if r.avgLoss == 0 {
-				return []float64{100}
+				r.out[0] = 100
+				return
 			}
 			rs := r.avgGain / r.avgLoss
-			return []float64{100 - 100/(1+rs)}
+			r.out[0] = 100 - 100/(1+rs)
+			return
 		}
-		return []float64{math.NaN()}
+		r.out[0] = math.NaN()
+		return
 	}
 
 	r.avgGain = (r.avgGain*float64(r.period-1) + gain) / float64(r.period)
 	r.avgLoss = (r.avgLoss*float64(r.period-1) + loss) / float64(r.period)
 
 	if r.avgLoss == 0 {
-		return []float64{100}
+		r.out[0] = 100
+		return
 	}
 	rs := r.avgGain / r.avgLoss
-	return []float64{100 - 100/(1+rs)}
+	r.out[0] = 100 - 100/(1+rs)
 }
 
 func (r *RSI) Reset() {

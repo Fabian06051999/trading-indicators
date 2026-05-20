@@ -1,13 +1,14 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/oscillators"
+	"math"
 )
 
 // ConnorsRSI implements the Connors RSI (combination of RSI, streak RSI, and percentile rank).
 type ConnorsRSI struct {
+	out          []float64
 	rsiPeriod    int
 	streakPeriod int
 	rankPeriod   int
@@ -28,6 +29,7 @@ func NewConnorsRSI(rsiPeriod, streakPeriod, rankPeriod int) *ConnorsRSI {
 		rsi:          oscillators.NewRSI(rsiPeriod),
 		streakRSI:    oscillators.NewRSI(streakPeriod),
 		rocBuffer:    make([]float64, rankPeriod),
+		out:          make([]float64, 1),
 	}
 }
 
@@ -80,7 +82,8 @@ func (c *ConnorsRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	c.rocIndex = (c.rocIndex + 1) % c.rankPeriod
 
 	if c.count < c.rankPeriod {
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return c.out
 	}
 
 	// Count how many past ROC values are below current
@@ -93,10 +96,12 @@ func (c *ConnorsRSI) UpdateAll(candle indicators.OHLCV) []float64 {
 	percentRank := (float64(below) / float64(c.rankPeriod)) * 100
 
 	if rsiVal == 0 || streakRSIVal == 0 {
-		return []float64{math.NaN()}
+		c.out[0] = math.NaN()
+		return c.out
 	}
 
-	return []float64{(rsiVal + streakRSIVal + percentRank) / 3.0}
+	c.out[0] = (rsiVal + streakRSIVal + percentRank) / 3.0
+	return c.out
 }
 
 func (c *ConnorsRSI) Reset() {

@@ -1,12 +1,13 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // Aroon implements the Aroon Up/Down indicator.
 type Aroon struct {
+	out    []float64
 	period int
 	highs  []float64
 	lows   []float64
@@ -19,6 +20,7 @@ func NewAroon(period int) *Aroon {
 		period: period,
 		highs:  make([]float64, period+1),
 		lows:   make([]float64, period+1),
+		out:    make([]float64, 2),
 	}
 }
 
@@ -42,7 +44,9 @@ func (a *Aroon) UpdateAll(candle indicators.OHLCV) []float64 {
 	a.index = (a.index + 1) % (a.period + 1)
 
 	if a.count <= a.period {
-		return []float64{math.NaN(), math.NaN()}
+		a.out[0] = math.NaN()
+		a.out[1] = math.NaN()
+		return a.out
 	}
 
 	// Find index of highest high and lowest low
@@ -67,7 +71,9 @@ func (a *Aroon) UpdateAll(candle indicators.OHLCV) []float64 {
 	aroonUp := (float64(highIdx) / p) * 100
 	aroonDown := (float64(lowIdx) / p) * 100
 
-	return []float64{aroonUp, aroonDown}
+	a.out[0] = aroonUp
+	a.out[1] = aroonDown
+	return a.out
 }
 
 func (a *Aroon) Reset() {

@@ -1,25 +1,27 @@
 package volume
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // EaseOfMovement implements the Ease of Movement indicator.
 type EaseOfMovement struct {
-	period    int
-	buffer    []float64
-	prevHigh  float64
-	prevLow   float64
-	sum       float64
-	index     int
-	count     int
+	out      []float64
+	period   int
+	buffer   []float64
+	prevHigh float64
+	prevLow  float64
+	sum      float64
+	index    int
+	count    int
 }
 
 func NewEaseOfMovement(period int) *EaseOfMovement {
 	return &EaseOfMovement{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -39,7 +41,8 @@ func (e *EaseOfMovement) UpdateAll(candle indicators.OHLCV) []float64 {
 	if e.count == 1 {
 		e.prevHigh = candle.High
 		e.prevLow = candle.Low
-		return []float64{math.NaN()}
+		e.out[0] = math.NaN()
+		return e.out
 	}
 
 	dm := ((candle.High + candle.Low) / 2.0) - ((e.prevHigh + e.prevLow) / 2.0)
@@ -63,10 +66,12 @@ func (e *EaseOfMovement) UpdateAll(candle indicators.OHLCV) []float64 {
 	e.index = (e.index + 1) % e.period
 
 	if e.count <= e.period {
-		return []float64{math.NaN()}
+		e.out[0] = math.NaN()
+		return e.out
 	}
 
-	return []float64{e.sum / float64(e.period)}
+	e.out[0] = e.sum / float64(e.period)
+	return e.out
 }
 
 func (e *EaseOfMovement) Reset() {

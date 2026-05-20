@@ -1,22 +1,23 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // RVI implements the Relative Vigor Index.
 type RVI struct {
-	period  int
-	numBuf  []float64
-	denBuf  []float64
-	sigBuf  []float64
-	opens   []float64
-	highs   []float64
-	lows    []float64
-	closes  []float64
-	index   int
-	count   int
+	out    []float64
+	period int
+	numBuf []float64
+	denBuf []float64
+	sigBuf []float64
+	opens  []float64
+	highs  []float64
+	lows   []float64
+	closes []float64
+	index  int
+	count  int
 }
 
 func NewRVI(period int) *RVI {
@@ -29,6 +30,7 @@ func NewRVI(period int) *RVI {
 		highs:  make([]float64, 4),
 		lows:   make([]float64, 4),
 		closes: make([]float64, 4),
+		out:    make([]float64, 2),
 	}
 }
 
@@ -59,19 +61,23 @@ func (r *RVI) UpdateAll(candle indicators.OHLCV) []float64 {
 	r.closes[3] = candle.Close
 
 	if r.count < 4 {
-		return []float64{math.NaN(), math.NaN()}
+		r.out[0] = math.NaN()
+		r.out[1] = math.NaN()
+		return r.out
 	}
 
 	// Symmetrically weighted moving average of numerator and denominator
-	num := (r.closes[3]-r.opens[3] + 2*(r.closes[2]-r.opens[2]) + 2*(r.closes[1]-r.opens[1]) + (r.closes[0]-r.opens[0])) / 6.0
-	den := (r.highs[3]-r.lows[3] + 2*(r.highs[2]-r.lows[2]) + 2*(r.highs[1]-r.lows[1]) + (r.highs[0]-r.lows[0])) / 6.0
+	num := (r.closes[3] - r.opens[3] + 2*(r.closes[2]-r.opens[2]) + 2*(r.closes[1]-r.opens[1]) + (r.closes[0] - r.opens[0])) / 6.0
+	den := (r.highs[3] - r.lows[3] + 2*(r.highs[2]-r.lows[2]) + 2*(r.highs[1]-r.lows[1]) + (r.highs[0] - r.lows[0])) / 6.0
 
 	idx := (r.count - 4) % r.period
 	r.numBuf[idx] = num
 	r.denBuf[idx] = den
 
 	if r.count < r.period+3 {
-		return []float64{math.NaN(), math.NaN()}
+		r.out[0] = math.NaN()
+		r.out[1] = math.NaN()
+		return r.out
 	}
 
 	sumNum := 0.0
@@ -92,7 +98,9 @@ func (r *RVI) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	signal := (r.sigBuf[3] + 2*r.sigBuf[2] + 2*r.sigBuf[1] + r.sigBuf[0]) / 6.0
 
-	return []float64{rviVal, signal}
+	r.out[0] = rviVal
+	r.out[1] = signal
+	return r.out
 }
 
 func (r *RVI) Reset() {

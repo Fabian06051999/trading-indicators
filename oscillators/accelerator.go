@@ -1,24 +1,26 @@
 package oscillators
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // AcceleratorOscillator implements Bill Williams' Accelerator Oscillator.
 // AC = AO - SMA(AO, 5)
 type AcceleratorOscillator struct {
-	ao        *AwesomeOscillator
-	aoBuffer  []float64
-	aoSum     float64
-	aoIndex   int
-	aoCount   int
+	ao       *AwesomeOscillator
+	aoBuffer []float64
+	aoSum    float64
+	aoIndex  int
+	aoCount  int
+	out      []float64
 }
 
 func NewAcceleratorOscillator() *AcceleratorOscillator {
 	return &AcceleratorOscillator{
 		ao:       NewAwesomeOscillator(),
 		aoBuffer: make([]float64, 5),
+		out:      make([]float64, 1),
 	}
 }
 
@@ -27,15 +29,22 @@ func (ac *AcceleratorOscillator) CalculateAll(candles []indicators.OHLCV) [][]fl
 	ac.Reset()
 
 	for i, c := range candles {
-		result[i] = ac.UpdateAll(c)[0]
+		ac.update(c)
+		result[i] = ac.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (ac *AcceleratorOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
+	ac.update(candle)
+	return ac.out
+}
+
+func (ac *AcceleratorOscillator) update(candle indicators.OHLCV) {
 	aoVal := ac.ao.UpdateAll(candle)[0]
 	if aoVal == 0 {
-		return []float64{math.NaN()}
+		ac.out[0] = math.NaN()
+		return
 	}
 
 	ac.aoCount++
@@ -45,11 +54,12 @@ func (ac *AcceleratorOscillator) UpdateAll(candle indicators.OHLCV) []float64 {
 	ac.aoIndex = (ac.aoIndex + 1) % 5
 
 	if ac.aoCount < 5 {
-		return []float64{math.NaN()}
+		ac.out[0] = math.NaN()
+		return
 	}
 
 	aoSMA := ac.aoSum / 5.0
-	return []float64{aoVal - aoSMA}
+	ac.out[0] = aoVal - aoSMA
 }
 
 func (ac *AcceleratorOscillator) Reset() {
@@ -62,7 +72,7 @@ func (ac *AcceleratorOscillator) Reset() {
 
 func (ac *AcceleratorOscillator) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Accelerator Oscillator",
+		Name:       "Accelerator Oscillator",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{

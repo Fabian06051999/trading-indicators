@@ -8,6 +8,7 @@ import (
 
 // Vortex implements the Vortex Indicator (VI+ and VI-).
 type Vortex struct {
+	out       []float64
 	period    int
 	vmPlus    []float64
 	vmMinus   []float64
@@ -21,10 +22,11 @@ type Vortex struct {
 
 func NewVortex(period int) *Vortex {
 	return &Vortex{
-		period:  period,
-		vmPlus:  make([]float64, period),
-		vmMinus: make([]float64, period),
+		period:   period,
+		vmPlus:   make([]float64, period),
+		vmMinus:  make([]float64, period),
 		trValues: make([]float64, period),
+		out:      make([]float64, 2),
 	}
 }
 
@@ -48,7 +50,9 @@ func (v *Vortex) UpdateAll(candle indicators.OHLCV) []float64 {
 		v.prevHigh = candle.High
 		v.prevLow = candle.Low
 		v.prevClose = candle.Close
-		return []float64{math.NaN(), math.NaN()}
+		v.out[0] = math.NaN()
+		v.out[1] = math.NaN()
+		return v.out
 	}
 
 	vmP := math.Abs(candle.High - v.prevLow)
@@ -66,7 +70,9 @@ func (v *Vortex) UpdateAll(candle indicators.OHLCV) []float64 {
 	v.index = (v.index + 1) % v.period
 
 	if v.count <= v.period {
-		return []float64{math.NaN(), math.NaN()}
+		v.out[0] = math.NaN()
+		v.out[1] = math.NaN()
+		return v.out
 	}
 
 	sumVMP := 0.0
@@ -79,10 +85,14 @@ func (v *Vortex) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	if sumTR == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		v.out[0] = math.NaN()
+		v.out[1] = math.NaN()
+		return v.out
 	}
 
-	return []float64{sumVMP / sumTR, sumVMM / sumTR}
+	v.out[0] = sumVMP / sumTR
+	v.out[1] = sumVMM / sumTR
+	return v.out
 }
 
 func (v *Vortex) Reset() {

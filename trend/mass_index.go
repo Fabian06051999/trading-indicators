@@ -1,20 +1,21 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // MassIndex implements the Mass Index (trend reversal detection).
 type MassIndex struct {
-	emaPeriod  int
-	sumPeriod  int
-	ema1       *moving_averages.EMA
-	ema2       *moving_averages.EMA
-	ratios     []float64
-	index      int
-	count      int
+	emaPeriod int
+	sumPeriod int
+	ema1      *moving_averages.EMA
+	ema2      *moving_averages.EMA
+	ratios    []float64
+	index     int
+	count     int
+	out       []float64
 }
 
 func NewMassIndex(emaPeriod, sumPeriod int) *MassIndex {
@@ -24,6 +25,7 @@ func NewMassIndex(emaPeriod, sumPeriod int) *MassIndex {
 		ema1:      moving_averages.NewEMA(emaPeriod),
 		ema2:      moving_averages.NewEMA(emaPeriod),
 		ratios:    make([]float64, sumPeriod),
+		out:       make([]float64, 1),
 	}
 }
 
@@ -32,20 +34,28 @@ func (m *MassIndex) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	m.Reset()
 
 	for i, c := range candles {
-		result[i] = m.UpdateAll(c)[0]
+		m.update(c)
+		result[i] = m.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (m *MassIndex) UpdateAll(candle indicators.OHLCV) []float64 {
+	m.update(candle)
+	return m.out
+}
+
+func (m *MassIndex) update(candle indicators.OHLCV) {
 	hl := candle.High - candle.Low
 	e1 := m.ema1.UpdateAll(indicators.OHLCV{Close: hl})[0]
 	if e1 == 0 {
-		return []float64{math.NaN()}
+		m.out[0] = math.NaN()
+		return
 	}
 	e2 := m.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
 	if e2 == 0 {
-		return []float64{math.NaN()}
+		m.out[0] = math.NaN()
+		return
 	}
 
 	ratio := 0.0
@@ -58,14 +68,15 @@ func (m *MassIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 	m.count++
 
 	if m.count < m.sumPeriod {
-		return []float64{math.NaN()}
+		m.out[0] = math.NaN()
+		return
 	}
 
 	sum := 0.0
 	for i := 0; i < m.sumPeriod; i++ {
 		sum += m.ratios[i]
 	}
-	return []float64{sum}
+	m.out[0] = sum
 }
 
 func (m *MassIndex) Reset() {

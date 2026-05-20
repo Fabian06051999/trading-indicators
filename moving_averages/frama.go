@@ -13,6 +13,7 @@ type FRAMA struct {
 	buffer []float64
 	index  int
 	count  int
+	out    []float64
 }
 
 func NewFRAMA(period int) *FRAMA {
@@ -20,6 +21,7 @@ func NewFRAMA(period int) *FRAMA {
 	return &FRAMA{
 		period: period,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -28,23 +30,31 @@ func (f *FRAMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	f.Reset()
 
 	for i, c := range candles {
-		result[i] = f.UpdateAll(c)[0]
+		f.update(c)
+		result[i] = f.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (f *FRAMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	f.update(candle)
+	return f.out
+}
+
+func (f *FRAMA) update(candle indicators.OHLCV) {
 	f.buffer[f.index] = candle.Close
 	f.index = (f.index + 1) % f.period
 	f.count++
 
 	if f.count < f.period {
-		return []float64{math.NaN()}
+		f.out[0] = math.NaN()
+		return
 	}
 
 	if f.count == f.period {
 		f.value = candle.Close
-		return []float64{f.value}
+		f.out[0] = f.value
+		return
 	}
 
 	half := f.period / 2
@@ -72,7 +82,7 @@ func (f *FRAMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	}
 
 	f.value = alpha*candle.Close + (1-alpha)*f.value
-	return []float64{f.value}
+	f.out[0] = f.value
 }
 
 func (f *FRAMA) rangeHL(start, end int) (float64, float64) {

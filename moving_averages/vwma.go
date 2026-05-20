@@ -1,19 +1,20 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // VWMA implements the Volume Weighted Moving Average.
 type VWMA struct {
-	period    int
-	priceBuf  []float64
-	volBuf    []float64
-	index     int
-	count     int
-	priceVol  float64
-	volSum    float64
+	period   int
+	priceBuf []float64
+	volBuf   []float64
+	index    int
+	count    int
+	priceVol float64
+	volSum   float64
+	out      []float64
 }
 
 func NewVWMA(period int) *VWMA {
@@ -22,6 +23,7 @@ func NewVWMA(period int) *VWMA {
 		period:   period,
 		priceBuf: make([]float64, period),
 		volBuf:   make([]float64, period),
+		out:      make([]float64, 1),
 	}
 }
 
@@ -30,12 +32,18 @@ func (v *VWMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	v.Reset()
 
 	for i, c := range candles {
-		result[i] = v.UpdateAll(c)[0]
+		v.update(c)
+		result[i] = v.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (v *VWMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	v.update(candle)
+	return v.out
+}
+
+func (v *VWMA) update(candle indicators.OHLCV) {
 	oldPV := v.priceBuf[v.index] * v.volBuf[v.index]
 	oldVol := v.volBuf[v.index]
 
@@ -50,12 +58,14 @@ func (v *VWMA) UpdateAll(candle indicators.OHLCV) []float64 {
 		v.count++
 	}
 	if v.count < v.period {
-		return []float64{math.NaN()}
+		v.out[0] = math.NaN()
+		return
 	}
 	if v.volSum == 0 {
-		return []float64{math.NaN()}
+		v.out[0] = math.NaN()
+		return
 	}
-	return []float64{v.priceVol / v.volSum}
+	v.out[0] = v.priceVol / v.volSum
 }
 
 func (v *VWMA) Reset() {

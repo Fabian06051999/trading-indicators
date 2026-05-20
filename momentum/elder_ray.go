@@ -1,13 +1,14 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // ElderRay implements Elder's Bull/Bear Power.
 type ElderRay struct {
+	out    []float64
 	period int
 	ema    *moving_averages.EMA
 }
@@ -16,6 +17,7 @@ func NewElderRay(period int) *ElderRay {
 	return &ElderRay{
 		period: period,
 		ema:    moving_averages.NewEMA(period),
+		out:    make([]float64, 2),
 	}
 }
 
@@ -35,12 +37,16 @@ func (e *ElderRay) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (e *ElderRay) UpdateAll(candle indicators.OHLCV) []float64 {
 	emaVal := e.ema.UpdateAll(candle)[0]
 	if emaVal == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		e.out[0] = math.NaN()
+		e.out[1] = math.NaN()
+		return e.out
 	}
 
 	bullPower := candle.High - emaVal
 	bearPower := candle.Low - emaVal
-	return []float64{bullPower, bearPower}
+	e.out[0] = bullPower
+	e.out[1] = bearPower
+	return e.out
 }
 
 func (e *ElderRay) Reset() {

@@ -1,12 +1,13 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // PivotPoints implements Standard (Floor) Pivot Points.
 type PivotPoints struct {
+	out       []float64
 	prevHigh  float64
 	prevLow   float64
 	prevClose float64
@@ -14,7 +15,7 @@ type PivotPoints struct {
 }
 
 func NewPivotPoints() *PivotPoints {
-	return &PivotPoints{}
+	return &PivotPoints{out: make([]float64, 7)}
 }
 
 // CalculateAll returns [PP, R1, R2, R3, S1, S2, S3]
@@ -48,7 +49,14 @@ func (p *PivotPoints) UpdateAll(candle indicators.OHLCV) []float64 {
 		p.prevHigh = candle.High
 		p.prevLow = candle.Low
 		p.prevClose = candle.Close
-		return []float64{math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN()}
+		p.out[0] = math.NaN()
+		p.out[1] = math.NaN()
+		p.out[2] = math.NaN()
+		p.out[3] = math.NaN()
+		p.out[4] = math.NaN()
+		p.out[5] = math.NaN()
+		p.out[6] = math.NaN()
+		return p.out
 	}
 
 	// Calculate pivots based on previous candle
@@ -64,7 +72,14 @@ func (p *PivotPoints) UpdateAll(candle indicators.OHLCV) []float64 {
 	p.prevLow = candle.Low
 	p.prevClose = candle.Close
 
-	return []float64{pivot, r1Val, r2Val, r3Val, s1Val, s2Val, s3Val}
+	p.out[0] = pivot
+	p.out[1] = r1Val
+	p.out[2] = r2Val
+	p.out[3] = r3Val
+	p.out[4] = s1Val
+	p.out[5] = s2Val
+	p.out[6] = s3Val
+	return p.out
 }
 
 func (p *PivotPoints) Reset() {
@@ -76,7 +91,7 @@ func (p *PivotPoints) Reset() {
 
 func (p *PivotPoints) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Pivot Points (Standard)",
+		Name:       "Pivot Points (Standard)",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneOverlay,
 		Outputs: []indicators.OutputConfig{

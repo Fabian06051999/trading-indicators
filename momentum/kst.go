@@ -1,26 +1,27 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // KST implements the Know Sure Thing indicator.
 type KST struct {
+	out        []float64
 	roc1Period int
 	roc2Period int
 	roc3Period int
 	roc4Period int
-	sma1      *moving_averages.SMA
-	sma2      *moving_averages.SMA
-	sma3      *moving_averages.SMA
-	sma4      *moving_averages.SMA
-	signalSMA *moving_averages.SMA
-	buffer    []float64
-	index     int
-	count     int
-	maxPeriod int
+	sma1       *moving_averages.SMA
+	sma2       *moving_averages.SMA
+	sma3       *moving_averages.SMA
+	sma4       *moving_averages.SMA
+	signalSMA  *moving_averages.SMA
+	buffer     []float64
+	index      int
+	count      int
+	maxPeriod  int
 }
 
 func NewKST(roc1, roc2, roc3, roc4, sma1, sma2, sma3, sma4, signal int) *KST {
@@ -36,13 +37,14 @@ func NewKST(roc1, roc2, roc3, roc4, sma1, sma2, sma3, sma4, signal int) *KST {
 		roc2Period: roc2,
 		roc3Period: roc3,
 		roc4Period: roc4,
-		sma1:      moving_averages.NewSMA(sma1),
-		sma2:      moving_averages.NewSMA(sma2),
-		sma3:      moving_averages.NewSMA(sma3),
-		sma4:      moving_averages.NewSMA(sma4),
-		signalSMA: moving_averages.NewSMA(signal),
-		buffer:    make([]float64, maxP+1),
-		maxPeriod: maxP,
+		sma1:       moving_averages.NewSMA(sma1),
+		sma2:       moving_averages.NewSMA(sma2),
+		sma3:       moving_averages.NewSMA(sma3),
+		sma4:       moving_averages.NewSMA(sma4),
+		signalSMA:  moving_averages.NewSMA(signal),
+		buffer:     make([]float64, maxP+1),
+		maxPeriod:  maxP,
+		out:        make([]float64, 2),
 	}
 }
 
@@ -65,7 +67,9 @@ func (k *KST) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if k.count <= k.maxPeriod {
 		k.index = (k.index + 1) % (k.maxPeriod + 1)
-		return []float64{math.NaN(), math.NaN()}
+		k.out[0] = math.NaN()
+		k.out[1] = math.NaN()
+		return k.out
 	}
 
 	// ROC calculations
@@ -83,13 +87,17 @@ func (k *KST) UpdateAll(candle indicators.OHLCV) []float64 {
 	s4 := k.sma4.UpdateAll(indicators.OHLCV{Close: roc4})[0]
 
 	if s1 == 0 || s2 == 0 || s3 == 0 || s4 == 0 {
-		return []float64{math.NaN(), math.NaN()}
+		k.out[0] = math.NaN()
+		k.out[1] = math.NaN()
+		return k.out
 	}
 
 	kstVal := s1*1 + s2*2 + s3*3 + s4*4
 	signal := k.signalSMA.UpdateAll(indicators.OHLCV{Close: kstVal})[0]
 
-	return []float64{kstVal, signal}
+	k.out[0] = kstVal
+	k.out[1] = signal
+	return k.out
 }
 
 func (k *KST) roc(period int, current float64) float64 {

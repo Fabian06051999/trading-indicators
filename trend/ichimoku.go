@@ -1,12 +1,13 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // Ichimoku implements the Ichimoku Cloud (Kinko Hyo).
 type Ichimoku struct {
+	out           []float64
 	tenkanPeriod  int
 	kijunPeriod   int
 	senkouBPeriod int
@@ -29,6 +30,7 @@ func NewIchimoku(tenkan, kijun, senkouB, displacement int) *Ichimoku {
 		displacement:  displacement,
 		highs:         make([]float64, maxP),
 		lows:          make([]float64, maxP),
+		out:           make([]float64, 5),
 	}
 }
 
@@ -80,7 +82,12 @@ func (ich *Ichimoku) UpdateAll(candle indicators.OHLCV) []float64 {
 	// Chikou Span = current close (plotted displaced backwards)
 	chikou := candle.Close
 
-	return []float64{tenkanVal, kijunVal, senkouA, senkouB, chikou}
+	ich.out[0] = tenkanVal
+	ich.out[1] = kijunVal
+	ich.out[2] = senkouA
+	ich.out[3] = senkouB
+	ich.out[4] = chikou
+	return ich.out
 }
 
 func (ich *Ichimoku) midpoint(period int) float64 {

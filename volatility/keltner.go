@@ -9,6 +9,7 @@ import (
 
 // KeltnerChannel implements Keltner Channels.
 type KeltnerChannel struct {
+	out        []float64
 	emaPeriod  int
 	atrPeriod  int
 	multiplier float64
@@ -23,6 +24,7 @@ func NewKeltnerChannel(emaPeriod, atrPeriod int, multiplier float64) *KeltnerCha
 		multiplier: multiplier,
 		ema:        moving_averages.NewEMA(emaPeriod),
 		atr:        NewATR(atrPeriod),
+		out:        make([]float64, 3),
 	}
 }
 
@@ -46,11 +48,17 @@ func (k *KeltnerChannel) UpdateAll(candle indicators.OHLCV) []float64 {
 	atrVal := k.atr.UpdateAll(candle)[0]
 
 	if mid == 0 || atrVal == 0 {
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		k.out[0] = math.NaN()
+		k.out[1] = math.NaN()
+		k.out[2] = math.NaN()
+		return k.out
 	}
 
 	offset := k.multiplier * atrVal
-	return []float64{mid + offset, mid, mid - offset}
+	k.out[0] = mid + offset
+	k.out[1] = mid
+	k.out[2] = mid - offset
+	return k.out
 }
 
 func (k *KeltnerChannel) Reset() {

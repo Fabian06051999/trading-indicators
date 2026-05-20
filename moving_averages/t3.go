@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // T3 implements the Tillson T3 Moving Average.
@@ -20,6 +20,7 @@ type T3 struct {
 	c3     float64
 	c4     float64
 	count  int
+	out    []float64
 }
 
 func NewT3(period int, volumeFactor float64) *T3 {
@@ -42,6 +43,7 @@ func NewT3(period int, volumeFactor float64) *T3 {
 		c2:     c2,
 		c3:     c3,
 		c4:     c4,
+		out:    make([]float64, 1),
 	}
 }
 
@@ -50,39 +52,51 @@ func (t *T3) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	t.Reset()
 
 	for i, c := range candles {
-		result[i] = t.UpdateAll(c)[0]
+		t.update(c)
+		result[i] = t.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (t *T3) UpdateAll(candle indicators.OHLCV) []float64 {
+	t.update(candle)
+	return t.out
+}
+
+func (t *T3) update(candle indicators.OHLCV) {
 	t.count++
 	e1 := t.ema1.UpdateAll(candle)[0]
 	if e1 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e2 := t.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
 	if e2 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e3 := t.ema3.UpdateAll(indicators.OHLCV{Close: e2})[0]
 	if e3 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e4 := t.ema4.UpdateAll(indicators.OHLCV{Close: e3})[0]
 	if e4 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e5 := t.ema5.UpdateAll(indicators.OHLCV{Close: e4})[0]
 	if e5 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e6 := t.ema6.UpdateAll(indicators.OHLCV{Close: e5})[0]
 	if e6 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 
-	return []float64{t.c1*e6 + t.c2*e5 + t.c3*e4 + t.c4*e3}
+	t.out[0] = t.c1*e6 + t.c2*e5 + t.c3*e4 + t.c4*e3
 }
 
 func (t *T3) Reset() {

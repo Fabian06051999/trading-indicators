@@ -1,13 +1,14 @@
 package volume
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // ForceIndex implements the Force Index (Elder).
 type ForceIndex struct {
+	out       []float64
 	period    int
 	ema       *moving_averages.EMA
 	prevClose float64
@@ -18,6 +19,7 @@ func NewForceIndex(period int) *ForceIndex {
 	return &ForceIndex{
 		period: period,
 		ema:    moving_averages.NewEMA(period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -36,13 +38,15 @@ func (f *ForceIndex) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if f.count == 1 {
 		f.prevClose = candle.Close
-		return []float64{math.NaN()}
+		f.out[0] = math.NaN()
+		return f.out
 	}
 
 	rawForce := (candle.Close - f.prevClose) * candle.Volume
 	f.prevClose = candle.Close
 
-	return []float64{f.ema.UpdateAll(indicators.OHLCV{Close: rawForce})[0]}
+	f.out[0] = f.ema.UpdateAll(indicators.OHLCV{Close: rawForce})[0]
+	return f.out
 }
 
 func (f *ForceIndex) Reset() {

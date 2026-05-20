@@ -8,13 +8,14 @@ import (
 
 // ALMA implements the Arnaud Legoux Moving Average.
 type ALMA struct {
-	period int
-	offset float64
-	sigma  float64
+	period  int
+	offset  float64
+	sigma   float64
 	weights []float64
 	buffer  []float64
 	index   int
 	count   int
+	out     []float64
 }
 
 func NewALMA(period int, offset, sigma float64) *ALMA {
@@ -25,6 +26,7 @@ func NewALMA(period int, offset, sigma float64) *ALMA {
 		offset: offset,
 		sigma:  sigma,
 		buffer: make([]float64, period),
+		out:    make([]float64, 1),
 	}
 	a.computeWeights()
 	return a
@@ -51,19 +53,26 @@ func (a *ALMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	a.Reset()
 
 	for i, c := range candles {
-		result[i] = a.UpdateAll(c)[0]
+		a.update(c)
+		result[i] = a.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (a *ALMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	a.update(candle)
+	return a.out
+}
+
+func (a *ALMA) update(candle indicators.OHLCV) {
 	a.buffer[a.index] = candle.Close
 	a.index = (a.index + 1) % a.period
 	if a.count < a.period {
 		a.count++
 	}
 	if a.count < a.period {
-		return []float64{math.NaN()}
+		a.out[0] = math.NaN()
+		return
 	}
 
 	sum := 0.0
@@ -71,7 +80,7 @@ func (a *ALMA) UpdateAll(candle indicators.OHLCV) []float64 {
 		idx := (a.index + i) % a.period
 		sum += a.buffer[idx] * a.weights[i]
 	}
-	return []float64{sum}
+	a.out[0] = sum
 }
 
 func (a *ALMA) Reset() {

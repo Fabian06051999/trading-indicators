@@ -1,9 +1,9 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // TRIX implements the Triple Exponential Average (1-day ROC of triple EMA).
@@ -14,6 +14,7 @@ type TRIX struct {
 	ema3   *moving_averages.EMA
 	prev   float64
 	count  int
+	out    []float64
 }
 
 func NewTRIX(period int) *TRIX {
@@ -22,6 +23,7 @@ func NewTRIX(period int) *TRIX {
 		ema1:   moving_averages.NewEMA(period),
 		ema2:   moving_averages.NewEMA(period),
 		ema3:   moving_averages.NewEMA(period),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -30,35 +32,44 @@ func (t *TRIX) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	t.Reset()
 
 	for i, c := range candles {
-		result[i] = t.UpdateAll(c)[0]
+		t.update(c)
+		result[i] = t.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (t *TRIX) UpdateAll(candle indicators.OHLCV) []float64 {
+	t.update(candle)
+	return t.out
+}
+
+func (t *TRIX) update(candle indicators.OHLCV) {
 	t.count++
 	e1 := t.ema1.UpdateAll(candle)[0]
 	if e1 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e2 := t.ema2.UpdateAll(indicators.OHLCV{Close: e1})[0]
 	if e2 == 0 {
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 	e3 := t.ema3.UpdateAll(indicators.OHLCV{Close: e2})[0]
 	if e3 == 0 {
 		t.prev = e3
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 
 	if t.prev == 0 {
 		t.prev = e3
-		return []float64{math.NaN()}
+		t.out[0] = math.NaN()
+		return
 	}
 
-	result := ((e3 - t.prev) / t.prev) * 100
+	t.out[0] = ((e3 - t.prev) / t.prev) * 100
 	t.prev = e3
-	return []float64{result}
 }
 
 func (t *TRIX) Reset() {

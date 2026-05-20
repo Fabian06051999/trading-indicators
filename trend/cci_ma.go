@@ -1,13 +1,14 @@
 package trend
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
 	"github.com/Fabian06051999/trading-indicators/moving_averages"
+	"math"
 )
 
 // EMAEnvelope implements Moving Average Envelopes.
 type EMAEnvelope struct {
+	out        []float64
 	period     int
 	percentage float64
 	ema        *moving_averages.EMA
@@ -18,6 +19,7 @@ func NewEMAEnvelope(period int, percentage float64) *EMAEnvelope {
 		period:     period,
 		percentage: percentage,
 		ema:        moving_averages.NewEMA(period),
+		out:        make([]float64, 3),
 	}
 }
 
@@ -39,11 +41,17 @@ func (e *EMAEnvelope) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 func (e *EMAEnvelope) UpdateAll(candle indicators.OHLCV) []float64 {
 	mid := e.ema.UpdateAll(candle)[0]
 	if mid == 0 {
-		return []float64{math.NaN(), math.NaN(), math.NaN()}
+		e.out[0] = math.NaN()
+		e.out[1] = math.NaN()
+		e.out[2] = math.NaN()
+		return e.out
 	}
 
 	offset := mid * (e.percentage / 100.0)
-	return []float64{mid + offset, mid, mid - offset}
+	e.out[0] = mid + offset
+	e.out[1] = mid
+	e.out[2] = mid - offset
+	return e.out
 }
 
 func (e *EMAEnvelope) Reset() {

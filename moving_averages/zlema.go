@@ -1,8 +1,8 @@
 package moving_averages
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // ZLEMA implements the Zero Lag Exponential Moving Average.
@@ -13,6 +13,7 @@ type ZLEMA struct {
 	buffer []float64
 	index  int
 	count  int
+	out    []float64
 }
 
 func NewZLEMA(period int) *ZLEMA {
@@ -23,6 +24,7 @@ func NewZLEMA(period int) *ZLEMA {
 		lag:    lag,
 		ema:    NewEMA(period),
 		buffer: make([]float64, lag+1),
+		out:    make([]float64, 1),
 	}
 }
 
@@ -31,12 +33,18 @@ func (z *ZLEMA) CalculateAll(candles []indicators.OHLCV) [][]float64 {
 	z.Reset()
 
 	for i, c := range candles {
-		result[i] = z.UpdateAll(c)[0]
+		z.update(c)
+		result[i] = z.out[0]
 	}
 	return [][]float64{result}
 }
 
 func (z *ZLEMA) UpdateAll(candle indicators.OHLCV) []float64 {
+	z.update(candle)
+	return z.out
+}
+
+func (z *ZLEMA) update(candle indicators.OHLCV) {
 	z.count++
 
 	// Store current close in buffer
@@ -44,7 +52,8 @@ func (z *ZLEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	z.index = (z.index + 1) % (z.lag + 1)
 
 	if z.count <= z.lag {
-		return []float64{math.NaN()}
+		z.out[0] = math.NaN()
+		return
 	}
 
 	// Get lagged value
@@ -52,7 +61,7 @@ func (z *ZLEMA) UpdateAll(candle indicators.OHLCV) []float64 {
 	// Zero-lag adjusted price
 	adjustedPrice := 2*candle.Close - laggedValue
 
-	return []float64{z.ema.UpdateAll(indicators.OHLCV{Close: adjustedPrice})[0]}
+	z.out[0] = z.ema.UpdateAll(indicators.OHLCV{Close: adjustedPrice})[0]
 }
 
 func (z *ZLEMA) Reset() {

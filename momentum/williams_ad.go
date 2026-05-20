@@ -1,19 +1,20 @@
 package momentum
 
 import (
-	"math"
 	"github.com/Fabian06051999/trading-indicators"
+	"math"
 )
 
 // WilliamsAD implements Williams Accumulation/Distribution.
 type WilliamsAD struct {
+	out       []float64
 	value     float64
 	prevClose float64
 	count     int
 }
 
 func NewWilliamsAD() *WilliamsAD {
-	return &WilliamsAD{}
+	return &WilliamsAD{out: make([]float64, 1)}
 }
 
 func (w *WilliamsAD) CalculateAll(candles []indicators.OHLCV) [][]float64 {
@@ -31,7 +32,8 @@ func (w *WilliamsAD) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	if w.count == 1 {
 		w.prevClose = candle.Close
-		return []float64{math.NaN()}
+		w.out[0] = math.NaN()
+		return w.out
 	}
 
 	ad := 0.0
@@ -43,7 +45,8 @@ func (w *WilliamsAD) UpdateAll(candle indicators.OHLCV) []float64 {
 
 	w.value += ad
 	w.prevClose = candle.Close
-	return []float64{w.value}
+	w.out[0] = w.value
+	return w.out
 }
 
 func (w *WilliamsAD) Reset() {
@@ -54,7 +57,7 @@ func (w *WilliamsAD) Reset() {
 
 func (w *WilliamsAD) Config() *indicators.IndicatorConfig {
 	return &indicators.IndicatorConfig{
-		Name: "Williams Accumulation/Distribution",
+		Name:       "Williams Accumulation/Distribution",
 		Parameters: []indicators.Parameter{},
 		Pane:       indicators.PaneSeparate,
 		Outputs: []indicators.OutputConfig{
@@ -62,4 +65,3 @@ func (w *WilliamsAD) Config() *indicators.IndicatorConfig {
 		},
 	}
 }
-
